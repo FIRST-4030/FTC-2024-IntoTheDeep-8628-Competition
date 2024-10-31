@@ -20,7 +20,6 @@ import org.firstinspires.ftc.teamcode.tuning.AprilTagLocalization;
 
 import java.util.Arrays;
 
-@Disabled
 @Config
 @TeleOp(name = "SplineTest")
 public final class SplineTest extends LinearOpMode {

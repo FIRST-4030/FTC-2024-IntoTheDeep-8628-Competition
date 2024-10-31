@@ -63,15 +63,21 @@ public final class MecanumDrive {
                 RevHubOrientationOnRobot.UsbFacingDirection.RIGHT;
 
         // drive model parameters
-        public double inPerTick = 0.0019507;
-        public double lateralInPerTick = 0.0014813787621439458;
-        public double trackWidthTicks = 6515.285086359832;
+//        public double inPerTick = 0.0019507;
+//        public double lateralInPerTick = 0.0014813787621439458;
+//        public double trackWidthTicks = 6515.285086359832;
+
+        public double inPerTick = 0.0019648;
+        public double lateralInPerTick = 0.0016057555324865023;
+        public double trackWidthTicks = 6225.066482281036;
 
         // feedforward parameters (in tick units)
-        public double kS = 0.9144270581159493;
-        public double kV = 0.00039118603429103265;
+//        public double kS = 0.9144270581159493;
+//        public double kV = 0.00039118603429103265;
+//        public double kA = 0.00005;
+        public double kS = 1.0841855880718683;
+        public double kV = 0.00038454842407831713;
         public double kA = 0.00005;
-
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
         public double minProfileAccel = -30;
@@ -82,9 +88,12 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
+//        public double axialGain = 10.0;
+//        public double lateralGain = 2.0;
+//        public double headingGain = 10.0; // shared with turn
         public double axialGain = 10.0;
         public double lateralGain = 2.0;
-        public double headingGain = 10.0; // shared with turn
+        public double headingGain = 5.0; // shared with turn
 
         public double axialVelGain = 0.0;
         public double lateralVelGain = 0.0;
@@ -229,14 +238,16 @@ public final class MecanumDrive {
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // TODO: reverse motor directions if needed
-//        leftFront.setDirection(DcMotor.Direction.REVERSE);
-//        leftBack.setDirection(DcMotor.Direction.REVERSE);
-//        rightFront.setDirection(DcMotor.Direction.REVERSE);
-
-        leftFront.setDirection(DcMotor.Direction.FORWARD);
-        leftBack.setDirection(DcMotor.Direction.FORWARD);
+        // Competition bot
+//        leftFront.setDirection(DcMotor.Direction.FORWARD);
+//        leftBack.setDirection(DcMotor.Direction.FORWARD);
+//        rightFront.setDirection(DcMotor.Direction.FORWARD);
+//        rightBack.setDirection(DcMotor.Direction.REVERSE);
+        // New bot
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
+        leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightFront.setDirection(DcMotor.Direction.FORWARD);
-        rightBack.setDirection(DcMotor.Direction.REVERSE);
+        rightBack.setDirection(DcMotor.Direction.FORWARD);
 
         // TODO: make sure your config has an IMU with this name (can be BNO or BHI)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
