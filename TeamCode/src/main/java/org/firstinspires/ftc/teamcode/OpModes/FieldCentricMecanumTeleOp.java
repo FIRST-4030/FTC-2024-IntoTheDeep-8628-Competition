@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -11,6 +12,8 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.BuildConfig;
 
 @Config
@@ -33,7 +36,7 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
         double clawTargetPosition = 0.5;
         double clawSpeed = 1.0/30.0;
         double clawMax = 1.0;
-        double clawMin = 0.25;
+        double clawMin = 0.0;
         double wristTargetPosition = 0.5;
         double wristSpeed = 1.0/300.0;
         double wristMax = 0.95;
@@ -51,6 +54,9 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
         int wristBeginsFlippingForHighBucketArm = 3200;
         int wristBeginsFlippingForHighBucketSlide = 2100;
         double wristHighBucketDeliverPosition = 0.95;
+
+        double turnPower;
+        double lastTurnPower = 0;
         // Declare our motors
         // Make sure your ID's match your configuration
         DcMotor frontLeftMotor = hardwareMap.dcMotor.get("leftFront");
@@ -101,7 +107,7 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.UP,
                 RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
-        // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
+                // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
         imu.initialize(parameters);
 
         if (opModeInInit()) {
@@ -118,11 +124,58 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
             double y = gamepad1.left_stick_y; // Remember, Y stick value is reversed
             double x = -gamepad1.left_stick_x;
             double rx = -gamepad1.right_stick_x;
+            int targetAngle;
+            targetAngle = -100;
+            if (gamepad1.a){
+                targetAngle = 180;
+            } else if (gamepad1.b) {
+                targetAngle = -90;
+            } else if (gamepad1.x) {
+                targetAngle = 90;
+            } else if (gamepad1.y) {
+                targetAngle = 0;
+            }
+            if (targetAngle >= -90){
+                double maxChange = 0.1;
+                YawPitchRollAngles yawPitchRollAngles = getImuAngle(imu);
+                AngularVelocity angularVelocity = getAngularVelocity(imu);
+                double velocity = angularVelocity.zRotationRate;
+                double minPowerToMoveRobot = 0.3;
+                double angle = yawPitchRollAngles.getYaw();
+                double error = targetAngle - angle;
+                if (error > 180) {
+                    error += -360;
+                }
+                if (error < -180) {
+                    error += 360;
+                }
+                turnPower = error/70.0;
+//                double addSomething = 0;
+//                if (velocity == 0){
+//                    addSomething = 0.01;
+//                }
+//                turnPower += 1/(velocity*100+addSomething);
+                if (turnPower > 0){
+                    turnPower = Math.max(minPowerToMoveRobot,turnPower);
+                } else if (turnPower < 0){
+                    turnPower = Math.min(-minPowerToMoveRobot,turnPower);
+                }
+                turnPower = Math.max (-1.0,turnPower);
+                turnPower = Math.min (1.0, turnPower);
+//                turnPower = Math.max(lastTurnPower-turnPower,-maxChange);
+//                turnPower = Math.min(lastTurnPower-turnPower,maxChange);
+                rx = turnPower;
+                lastTurnPower = turnPower;
+            } else {
+                lastTurnPower = 0;
+            }
+
             if (gamepad1.right_bumper){
                 y *= slowSpeed;
                 x *= slowSpeed;
                 rx *= slowSpeed;
             }
+
 
             // This button choice was made so that it is hard to hit on accident,
             // it can be freely changed based on preference.
@@ -240,5 +293,14 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
 
             telemetry.update();
         }
+
+    }
+    public YawPitchRollAngles getImuAngle(IMU imu){
+        YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
+        return angles;
+    }
+    public AngularVelocity getAngularVelocity(IMU imu){
+        AngularVelocity angularVelocity = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
+        return  angularVelocity;
     }
 }

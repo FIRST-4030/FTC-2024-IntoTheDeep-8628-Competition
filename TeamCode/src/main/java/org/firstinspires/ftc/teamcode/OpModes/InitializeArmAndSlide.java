@@ -44,6 +44,8 @@ public class InitializeArmAndSlide {
                 arm.setTargetPosition(10);
                 arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                telemetry.addLine("initialization successful");
+                telemetry.update();
 //        tickLimit = maxVal;
                 return true;
             }

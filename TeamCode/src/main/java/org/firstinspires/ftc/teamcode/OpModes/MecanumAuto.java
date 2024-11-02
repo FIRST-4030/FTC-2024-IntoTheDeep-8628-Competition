@@ -72,7 +72,7 @@ public final class MecanumAuto extends LinearOpMode {
     public static double wristHighBucketDeliverPosition = 0.95;
     public static double wristPickupPosition = 0.38;
     double wristStraightUp = 0.3;
-    double clawOpen = 0.25;
+    double clawOpen = 0.0;
     double clawClosed = 1.0;
 
     ComputerVision vision;
