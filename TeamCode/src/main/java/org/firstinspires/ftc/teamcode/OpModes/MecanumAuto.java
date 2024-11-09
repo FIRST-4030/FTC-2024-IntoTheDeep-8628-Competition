@@ -61,19 +61,19 @@ public final class MecanumAuto extends LinearOpMode {
 
     public static double wristSubmersible = 0.2;
     // driver assist high bucket arm, slide and wrist movement
-    public static int slideHighBucketPosition = 2200;
-    public static int armHighBucketPosition = 3270;
+    public static int slideHighBucketPosition = 2020;
+    public static int armHighBucketPosition = 3300;
     public static int slideBeginsExtendingForHighBucket = 1500;
     public static int wristBeginsFlippingForHighBucketArm = 3200;
     public static int wristBeginsFlippingForHighBucketSlide = 2100;
     public static int armPrepPosition = 500;
-    public static int armPickupPosition = 10;
-    public static int slidePickupPosition = 228;
+    public static int armPickupPosition = 15;
+    public static int slidePickupPosition = 397;
     public static double wristHighBucketDeliverPosition = 0.95;
-    public static double wristPickupPosition = 0.38;
-    double wristStraightUp = 0.3;
-    double clawOpen = 0.0;
-    double clawClosed = 1.0;
+    public static double wristPickupPosition = 0.466;
+    double wristStraightUp = 0.39;
+    double clawOpen = 0.25;
+    double clawClosed = 0.84;
 
     ComputerVision vision;
     AprilTagPoseFtc[] aprilTagTranslations = new AprilTagPoseFtc[11];
@@ -175,9 +175,9 @@ public final class MecanumAuto extends LinearOpMode {
                 arm.setTargetPosition(armPrepPosition);
                 slide.setTargetPosition(slidePickupPosition);
                 wrist.setPosition(wristPickupPosition);
-                Pose2d farSpikePose = new Pose2d(-7, 23, Math.toRadians(90));
-                Pose2d middleSpikePose = new Pose2d(-18, 23, Math.toRadians(90));
-                Pose2d closeSpikePose = new Pose2d(-21, 26, Math.toRadians(120));
+                Pose2d farSpikePose = new Pose2d(-7, 22, Math.toRadians(90));
+                Pose2d middleSpikePose = new Pose2d(-18, 22, Math.toRadians(90));
+                Pose2d closeSpikePose = new Pose2d(-21, 25, Math.toRadians(120));
                 if (i == 1){
                     thisPose = farSpikePose;
                 } else if (i == 2){

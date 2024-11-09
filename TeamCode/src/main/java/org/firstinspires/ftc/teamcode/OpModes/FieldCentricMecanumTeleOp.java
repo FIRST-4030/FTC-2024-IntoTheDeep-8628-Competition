@@ -19,7 +19,8 @@ import org.firstinspires.ftc.teamcode.BuildConfig;
 @Config
 @TeleOp(name = "FieldCentricMecanumTeleOp")
 public class FieldCentricMecanumTeleOp extends LinearOpMode {
-    public static int armMaxPosition = 3270;
+// good arm max    public static int armMaxPosition = 3270;
+public static int armMaxPosition = 3300; // arm max disabled
     public static int slideMaxHorizontalPosition = 1060;
     public static int slideMaxVerticalPosition = 2300;
 
@@ -35,16 +36,19 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
         int slideMovementSpeed = 10;
         double clawTargetPosition = 0.5;
         double clawSpeed = 1.0/30.0;
-        double clawMax = 1.0;
-        double clawMin = 0.0;
+        double clawMax = 0.84;
+        double clawMin = 0.25;
+        double clawOpen = 0.25;
+        double clawClose = 0.84;
         double wristTargetPosition = 0.5;
         double wristSpeed = 1.0/300.0;
         double wristMax = 0.95;
-        double wristMin = 0.3;
+        double wristMin = 0.39;
 
         double wristStraightUp = 0.5;
 
         double slowSpeed = 0.5;
+        double superSlowSpeed = 0.25;
 
         double wristSubmersible = 0.2;
         // driver assist high bucket arm, slide and wrist movement
@@ -140,7 +144,7 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                 YawPitchRollAngles yawPitchRollAngles = getImuAngle(imu);
                 AngularVelocity angularVelocity = getAngularVelocity(imu);
                 double velocity = angularVelocity.zRotationRate;
-                double minPowerToMoveRobot = 0.3;
+                double minPowerToMoveRobot = 0.25;
                 double angle = yawPitchRollAngles.getYaw();
                 double error = targetAngle - angle;
                 if (error > 180) {
@@ -164,6 +168,9 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                 turnPower = Math.min (1.0, turnPower);
 //                turnPower = Math.max(lastTurnPower-turnPower,-maxChange);
 //                turnPower = Math.min(lastTurnPower-turnPower,maxChange);
+                if (Math.abs(error) < 1){
+                    turnPower = 0;
+                }
                 rx = turnPower;
                 lastTurnPower = turnPower;
             } else {
@@ -174,6 +181,11 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                 y *= slowSpeed;
                 x *= slowSpeed;
                 rx *= slowSpeed;
+            }
+            if (gamepad1.left_bumper){
+                y *= superSlowSpeed;
+                x *= superSlowSpeed;
+                rx *= superSlowSpeed;
             }
 
 
@@ -247,11 +259,11 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                 claw.setPosition(clawTargetPosition);
             }
             if (gamepad2.right_trigger > 0.2){
-                wristTargetPosition = wristMin;
-                wrist.setPosition(wristTargetPosition);
+                clawTargetPosition = clawClose;
+                claw.setPosition(clawTargetPosition);
             } else if (gamepad2.left_trigger > 0.2){
-                wristTargetPosition = wristMax;
-                wrist.setPosition(wristTargetPosition);
+                clawTargetPosition = clawOpen;
+                claw.setPosition(clawTargetPosition);
             }
             if (gamepad2.y){
                 armTargetPosition = armHighBucketPosition;
@@ -271,17 +283,33 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                 }
             }
             if (gamepad2.a){
-                armTargetPosition = 369;
+                armTargetPosition = 520;
                 arm.setTargetPosition(armTargetPosition);
-                wristTargetPosition = 0.327;
+                wristTargetPosition = 0.45;
                 wrist.setPosition(wristTargetPosition);
 
-//                armTargetPosition = armMinPosition;
-//                arm.setTargetPosition(armTargetPosition);
-                slideTargetPosition = slideMinPosition;
+                slideTargetPosition = 583;
                 slide.setTargetPosition(slideTargetPosition);
-//                wristTargetPosition = wristSubmersible;
-//                wrist.setPosition(wristTargetPosition);
+            }
+            if (gamepad2.b){
+                armTargetPosition = 10;
+                arm.setTargetPosition(armTargetPosition);
+                wristTargetPosition = 0.7437;
+                wrist.setPosition(wristTargetPosition);
+
+                slideTargetPosition = 453;
+                slide.setTargetPosition(slideTargetPosition);
+                claw.setPosition(clawOpen);
+            }
+            if (gamepad2.x){
+                armTargetPosition = 1500;
+                arm.setTargetPosition(armTargetPosition);
+                wristTargetPosition = 0.8567;
+                wrist.setPosition(wristTargetPosition);
+
+                slideTargetPosition = 827;
+                slide.setTargetPosition(slideTargetPosition);
+                claw.setPosition(clawClose);
             }
 
             telemetry.addData("armPosition", arm.getCurrentPosition());
