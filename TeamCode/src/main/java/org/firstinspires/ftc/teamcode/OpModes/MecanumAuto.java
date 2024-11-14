@@ -71,7 +71,7 @@ public final class MecanumAuto extends LinearOpMode {
     public static int slidePickupPosition = 397;
     public static double wristHighBucketDeliverPosition = 0.95;
     public static double wristPickupPosition = 0.466;
-    double wristStraightUp = 0.39;
+    double wristStraightUp = 0.35;
     double clawOpen = 0.25;
     double clawClosed = 0.84;
 
@@ -205,7 +205,7 @@ public final class MecanumAuto extends LinearOpMode {
                 sleep(500);
             }
             //deliver
-            Pose2d deliverPose = new Pose2d(-24, 10, Math.toRadians(90));
+            Pose2d deliverPose = new Pose2d(-24, 14, Math.toRadians(90));
             thisPose = deliverPose;
             arm.setTargetPosition(armHighBucketPosition);
             wrist.setPosition(wristStraightUp);

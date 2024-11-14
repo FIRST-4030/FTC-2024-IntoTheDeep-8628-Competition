@@ -40,7 +40,7 @@ public final class RightAuto extends LinearOpMode {
 
     public static double highChamberDeliverWrist = 0.95;
     public static int highChamberDeliverArm = 2910;
-    public static int highChamberDeliverSlide = 700;
+    public static int highChamberDeliverSlide = 750;
     public static double highChamberPrepWrist = 0.95;
     public static int highChamberPrepArm = 2910;
     public static int highChamberPrepSlide = 289;
@@ -48,10 +48,10 @@ public final class RightAuto extends LinearOpMode {
     public static double highChamberY = -33.0;
     public static double highChamberHeading = -90;
     public static int pickupArmPosition = 10;
-    public static int pickupSlidePosition = 453;
+    public static int pickupSlidePosition = 260;
     public static double pickupWristPosition = 0.7437;
     public static double pickupXPosition = 36.0;
-    public static double pickupYPosition = -62.0;
+    public static double pickupYPosition = -55.0;
     public static double pickupHeading = -90;
     double clawOpen = 0.25;
     double clawClosed = 0.84;
@@ -122,14 +122,14 @@ public final class RightAuto extends LinearOpMode {
         vision.setActiveCameraOne(); */
 
         VelConstraint baseVelConstraint = new MinVelConstraint(Arrays.asList(
-                new TranslationalVelConstraint(10.0),
+                new TranslationalVelConstraint(40.0),
                 new AngularVelConstraint(Math.PI / 2)
         ));
         VelConstraint curveVelConstraint = new MinVelConstraint(Arrays.asList(
                 new TranslationalVelConstraint(15.0),
                 new AngularVelConstraint(Math.PI / 2)
         ));
-        AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(-10.0, 10.0);
+        AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(-20.0, 50.0);
 
 
         Pose2dWrapper startPose = new Pose2dWrapper(startX, startY, Math.toRadians(startHeading));
@@ -153,9 +153,8 @@ public final class RightAuto extends LinearOpMode {
                 new ParallelAction(
                         driveAction,
                         new SequentialAction(
-                                new SleepAction(1.0),
+                                new SleepAction(0.6),
                                 (telemetryPacket) -> {
-                                    arm.setTargetPosition(highChamberPrepArm);
                                     wrist.setPosition(highChamberPrepWrist);
                                     slide.setTargetPosition(highChamberPrepSlide);
                                     return false;
@@ -164,58 +163,72 @@ public final class RightAuto extends LinearOpMode {
                 )
         );
         lastPose = thisPose;
-        sleep(2000);
+        sleep(100);
         slide.setTargetPosition(highChamberDeliverSlide);
         arm.setTargetPosition(highChamberDeliverArm);
         wrist.setPosition(highChamberDeliverWrist);
-        while(Math.abs(slide.getCurrentPosition() - highChamberDeliverSlide) < 20){
+        while(Math.abs(slide.getCurrentPosition() - highChamberDeliverSlide) < 10){
             sleep(10);
         }
         sleep(500);
         claw.setPosition(clawOpen);
-        sleep(1000);
+        sleep(100);
         arm.setTargetPosition(10);
         slide.setTargetPosition(10);
         Actions.runBlocking(
                 drive.actionBuilder(lastPose)
-
-                .splineToConstantHeading(new Vector2d(35.0, highChamberY), Math.toRadians(90.0), baseVelConstraint,baseAccelConstraint)
-                .splineToConstantHeading(new Vector2d(40.0, -14.00), Math.toRadians(130.0), baseVelConstraint,baseAccelConstraint)
-                .splineToConstantHeading(new Vector2d(45.0, -10.0), Math.toRadians(-180.0), curveVelConstraint,baseAccelConstraint)
-                .splineToConstantHeading(new Vector2d(45.0, -14.0), Math.toRadians(-110.0), curveVelConstraint,baseAccelConstraint)
-                .strafeToConstantHeading(new Vector2d(47.0, -58), baseVelConstraint,baseAccelConstraint)
+                        .strafeToConstantHeading(new Vector2d(35.0, highChamberY), baseVelConstraint,baseAccelConstraint)
+                        .strafeToConstantHeading(new Vector2d(46.0, -14.0), baseVelConstraint,baseAccelConstraint)
+                        .strafeToConstantHeading(new Vector2d(46.0, -50.0), baseVelConstraint,baseAccelConstraint)
+                        .strafeToConstantHeading(new Vector2d(50.0, -15.0), baseVelConstraint,baseAccelConstraint)
+                        .strafeToConstantHeading(new Vector2d(57.0, -15.0), baseVelConstraint,baseAccelConstraint)
                         .build());
-        lastPose = new Pose2d(47.0, -58.0, Math.toRadians(-90.0));
+        lastPose = new Pose2d(57.0, -15.0, Math.toRadians(-90.0));
+        claw.setPosition(clawOpen);
+        wrist.setPosition(pickupWristPosition);
+        slide.setTargetPosition(pickupSlidePosition);
         Actions.runBlocking(
                 drive.actionBuilder(lastPose)
-                .waitSeconds(0.5)
-                .splineToConstantHeading(new Vector2d(50, -14.0), Math.toRadians(135.0), baseVelConstraint,baseAccelConstraint)
-                .splineToConstantHeading(new Vector2d(52.0, -13.0), Math.toRadians(-180.0), curveVelConstraint,baseAccelConstraint)
-                .splineToConstantHeading(new Vector2d(54.0, -14.0), Math.toRadians(-135.0), curveVelConstraint,baseAccelConstraint)
-                .splineToConstantHeading(new Vector2d(57.0, -58.0), Math.toRadians(-90.0), baseVelConstraint,baseAccelConstraint)
+                        .strafeToConstantHeading(new Vector2d(57.0, -55.0), baseVelConstraint,baseAccelConstraint)
+//                .splineToConstantHeading(new Vector2d(35.0, highChamberY), Math.toRadians(90.0), baseVelConstraint,baseAccelConstraint)
+//                .splineToConstantHeading(new Vector2d(40.0, -14.00), Math.toRadians(130.0), baseVelConstraint,baseAccelConstraint)
+//                .splineToConstantHeading(new Vector2d(45.0, -10.0), Math.toRadians(-180.0), curveVelConstraint,baseAccelConstraint)
+//                .splineToConstantHeading(new Vector2d(45.0, -14.0), Math.toRadians(-110.0), curveVelConstraint,baseAccelConstraint)
+//                .strafeToConstantHeading(new Vector2d(47.0, -58), baseVelConstraint,baseAccelConstraint)
+//                .waitSeconds(0.5)
+//                .splineToConstantHeading(new Vector2d(50, -14.0), Math.toRadians(135.0), baseVelConstraint,baseAccelConstraint)
+//                .splineToConstantHeading(new Vector2d(52.0, -13.0), Math.toRadians(-180.0), curveVelConstraint,baseAccelConstraint)
+//                .splineToConstantHeading(new Vector2d(54.0, -14.0), Math.toRadians(-135.0), curveVelConstraint,baseAccelConstraint)
+//                .splineToConstantHeading(new Vector2d(57.0, -58.0), Math.toRadians(-90.0), baseVelConstraint,baseAccelConstraint)
                         .build());
-        lastPose = new Pose2d(57.0, -58.0, Math.toRadians(-90.0));
+        lastPose = new Pose2d(57.0, -55.0, Math.toRadians(-90.0));
+
 
         for (int i = 0; i < 3; i++){
-            thisPose = new Pose2d (pickupXPosition, pickupYPosition, Math.toRadians(pickupHeading));
-            driveAction = drive.actionBuilder(lastPose)
-                    .strafeToLinearHeading(thisPose.position, thisPose.heading, baseVelConstraint, baseAccelConstraint)
-                    .build();
-            arm.setTargetPosition(pickupArmPosition);
-            Actions.runBlocking(
-                    new ParallelAction(
-                            driveAction,
-                            new SequentialAction(
-                                    (telemetryPacket) -> {
-                                        claw.setPosition(clawOpen);
-                                        wrist.setPosition(pickupWristPosition);
-                                        slide.setTargetPosition(pickupSlidePosition);
-                                        return false;
-                                    }
-                            )
-                    )
-            );
-            lastPose = thisPose;
+            if ( i != 0) {
+                thisPose = new Pose2d(pickupXPosition, pickupYPosition, Math.toRadians(pickupHeading));
+                driveAction = drive.actionBuilder(lastPose)
+                        .strafeToLinearHeading(thisPose.position, thisPose.heading, baseVelConstraint, baseAccelConstraint)
+                        .build();
+                arm.setTargetPosition(pickupArmPosition);
+                Actions.runBlocking(
+                        new ParallelAction(
+                                driveAction,
+                                new SequentialAction(
+                                        (telemetryPacket) -> {
+                                            claw.setPosition(clawOpen);
+                                            wrist.setPosition(pickupWristPosition);
+                                            slide.setTargetPosition(pickupSlidePosition);
+                                            return false;
+                                        }
+                                )
+                        )
+                );
+                lastPose = thisPose;
+            }
+//            sleep(200);
+            claw.setPosition(clawClosed);
+            sleep(200);
 
 
 
@@ -242,12 +255,12 @@ public final class RightAuto extends LinearOpMode {
             slide.setTargetPosition(highChamberDeliverSlide);
             arm.setTargetPosition(highChamberDeliverArm);
             wrist.setPosition(highChamberDeliverWrist);
-            while(Math.abs(slide.getCurrentPosition() - highChamberDeliverSlide) < 20){
+            while(Math.abs(slide.getCurrentPosition() - highChamberDeliverSlide) < 10){
                 sleep(10);
             }
             sleep(500);
             claw.setPosition(clawOpen);
-            sleep(1000);
+            sleep(100);
 
 
 

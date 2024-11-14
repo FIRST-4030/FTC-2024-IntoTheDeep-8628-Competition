@@ -38,7 +38,7 @@ public static int armMaxPosition = 3300; // arm max disabled
         double clawMax = 0.84;
         double clawMin = 0.25;
         double clawOpen = 0.25;
-        double clawClose = 0.84;
+        double clawClose = 0.88;
         double wristTargetPosition = 0.5;
         double wristSpeed = 1.0/300.0;
         double wristMax = 0.95;
@@ -257,10 +257,10 @@ public static int armMaxPosition = 3300; // arm max disabled
                 clawTargetPosition = Math.max (clawMin,clawTargetPosition);
                 claw.setPosition(clawTargetPosition);
             }
-            if (gamepad2.right_trigger > 0.2){
+            if (gamepad1.right_trigger > 0.2 || gamepad2.right_trigger > 0.2){
                 clawTargetPosition = clawClose;
                 claw.setPosition(clawTargetPosition);
-            } else if (gamepad2.left_trigger > 0.2){
+            } else if (gamepad1.left_trigger > 0.2 || gamepad2.left_trigger > 0.2){
                 clawTargetPosition = clawOpen;
                 claw.setPosition(clawTargetPosition);
             }
@@ -296,18 +296,19 @@ public static int armMaxPosition = 3300; // arm max disabled
                 wristTargetPosition = 0.7437;
                 wrist.setPosition(wristTargetPosition);
 
-                slideTargetPosition = 453;
+                slideTargetPosition = 260;
                 slide.setTargetPosition(slideTargetPosition);
                 claw.setPosition(clawOpen);
             }
             if (gamepad2.x){
-                armTargetPosition = 1500;
+                armTargetPosition = 1450;
                 arm.setTargetPosition(armTargetPosition);
                 wristTargetPosition = 0.8567;
                 wrist.setPosition(wristTargetPosition);
-
-                slideTargetPosition = 827;
-                slide.setTargetPosition(slideTargetPosition);
+                if (arm.getCurrentPosition() > 750) {
+                    slideTargetPosition = 975;
+                    slide.setTargetPosition(slideTargetPosition);
+                }
                 claw.setPosition(clawClose);
             }
 
