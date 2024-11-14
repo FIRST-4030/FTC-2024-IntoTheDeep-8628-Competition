@@ -114,8 +114,7 @@ public static int armMaxPosition = 3300; // arm max disabled
         imu.initialize(parameters);
 
         if (opModeInInit()) {
-            String compilationDate = BuildConfig.COMPILATION_DATE;
-            telemetry.addData("Compiled on:", compilationDate);
+            telemetry.addData("Compiled on:", BuildConfig.COMPILATION_DATE);
             telemetry.update();
         }
 

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.GeneralConstants.PRIMARY_BOT;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.canvas.Canvas;
@@ -34,7 +36,6 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -63,62 +64,47 @@ public final class MecanumDrive {
                 RevHubOrientationOnRobot.UsbFacingDirection.RIGHT;
 
         // drive model parameters
-        // Competition bot
-        public double inPerTick = 0.0019507;
-        public double lateralInPerTick = 0.0014813787621439458;
-        public double trackWidthTicks = 6548.827506695834;
-// Spare bot
-//        public double inPerTick = 0.0019648;
-//        public double lateralInPerTick = 0.0016057555324865023;
-//        public double trackWidthTicks = 6225.066482281036;
+        public double inPerTick;
+        public double lateralInPerTick;
+        public double trackWidthTicks;
 
         // feedforward parameters (in tick units)
-        // Competition bot
-        public double kS = 0.9144270581159493;
-        public double kV = 0.00039118603429103265;
-        public double kA = 0.00005;
-        // Spare bot
-//        public double kS = 1.0841855880718683;
-//        public double kV = 0.00038454842407831713;
-//        public double kA = 0.00005;
+        public double kS;
+        public double kV;
+        public double kA;
+
         // path profile parameters (in inches)
-        public double maxWheelVel = 50;
-        public double minProfileAccel = -30;
-        public double maxProfileAccel = 50;
+        public double maxWheelVel;
+        public double minProfileAccel;
+        public double maxProfileAccel;
 
         // turn profile parameters (in radians)
-        public double maxAngVel = Math.PI; // shared with path
-        public double maxAngAccel = Math.PI;
+        public double maxAngVel; // shared with path
+        public double maxAngAccel;
 
         // path controller gains
-        // Competition bot
-        public double axialGain = 10.0;
-        public double lateralGain = 2.0;
-        public double headingGain = 10.0; // shared with turn
-        // Spare bot
-//        public double axialGain = 10.0;
-//        public double lateralGain = 2.0;
-//        public double headingGain = 5.0; // shared with turn
+        public double axialGain;
+        public double lateralGain;
+        public double headingGain; // shared with turn
 
-        public double axialVelGain = 0.0;
-        public double lateralVelGain = 0.0;
-        public double headingVelGain = 0.0; // shared with turn
+        public double axialVelGain;
+        public double lateralVelGain;
+        public double headingVelGain; // shared with turn
     }
 
     public static Params PARAMS = new Params();
 
-    public final MecanumKinematics kinematics = new MecanumKinematics(
-            PARAMS.inPerTick * PARAMS.trackWidthTicks, PARAMS.inPerTick / PARAMS.lateralInPerTick);
+    public static String networkName;
 
-    public final TurnConstraints defaultTurnConstraints = new TurnConstraints(
-            PARAMS.maxAngVel, -PARAMS.maxAngAccel, PARAMS.maxAngAccel);
-    public final VelConstraint defaultVelConstraint =
-            new MinVelConstraint(Arrays.asList(
-                    kinematics.new WheelVelConstraint(PARAMS.maxWheelVel),
-                    new AngularVelConstraint(PARAMS.maxAngVel)
-            ));
-    public final AccelConstraint defaultAccelConstraint =
-            new ProfileAccelConstraint(PARAMS.minProfileAccel, PARAMS.maxProfileAccel);
+    ControlHub controlHub = new ControlHub();
+
+    public MecanumKinematics kinematics = null;
+
+    public TurnConstraints defaultTurnConstraints =  null;
+
+    public VelConstraint defaultVelConstraint = null;
+
+    public AccelConstraint defaultAccelConstraint  = null;
 
     public final DcMotorEx leftFront, leftBack, rightBack, rightFront;
 
@@ -226,6 +212,13 @@ public final class MecanumDrive {
     public MecanumDrive(HardwareMap hardwareMap, Pose2d pose) {
         this.pose = pose;
 
+        networkName = controlHub.getNetworkName();
+
+        // set PARAMS based upon the network you are connected to
+        setParams();
+
+        // initialize some classes after some PARAMS are set
+        initializeOtherParameters();
         LynxFirmware.throwIfModulesAreOutdated(hardwareMap);
 
         for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
@@ -511,5 +504,65 @@ public final class MecanumDrive {
                 defaultTurnConstraints,
                 defaultVelConstraint, defaultAccelConstraint
         );
+    }
+
+    private void initializeOtherParameters() {
+        kinematics = new MecanumKinematics(
+                PARAMS.inPerTick * PARAMS.trackWidthTicks, PARAMS.inPerTick / PARAMS.lateralInPerTick);
+
+        defaultTurnConstraints = new TurnConstraints(
+                PARAMS.maxAngVel, -PARAMS.maxAngAccel, PARAMS.maxAngAccel);
+
+        defaultVelConstraint = new MinVelConstraint(Arrays.asList(
+                        kinematics.new WheelVelConstraint(PARAMS.maxWheelVel),
+                        new AngularVelConstraint(PARAMS.maxAngVel)
+                ));
+        defaultAccelConstraint = new ProfileAccelConstraint(PARAMS.minProfileAccel, PARAMS.maxProfileAccel);
+    }
+    private void setParams() {
+
+        if (networkName.equals(PRIMARY_BOT)) {
+
+            PARAMS.inPerTick = 0.0019507;
+            PARAMS.lateralInPerTick = 0.0014813787621439458;
+            PARAMS.trackWidthTicks = 6548.827506695834;
+
+            PARAMS.kS = 0.9144270581159493;
+            PARAMS.kV = 0.00039118603429103265;
+            PARAMS.kA = 0.00005;
+
+            PARAMS.maxWheelVel = 50;
+            PARAMS.minProfileAccel = -30;
+            PARAMS.maxProfileAccel = 50;
+
+            PARAMS.axialGain = 10.0;
+            PARAMS.lateralGain = 2.0;
+            PARAMS.headingGain = 10.0; // shared with turn
+
+        } else {
+
+            PARAMS.inPerTick = 0.0019648;
+            PARAMS.lateralInPerTick = 0.0016057555324865023;
+            PARAMS.trackWidthTicks = 6225.066482281036;
+
+            PARAMS.kS = 1.0841855880718683;
+            PARAMS.kV = 0.00038454842407831713;
+            PARAMS.kA = 0.00005;
+
+            PARAMS.maxWheelVel = 50;
+            PARAMS.minProfileAccel = -30;
+            PARAMS.maxProfileAccel = 50;
+
+            PARAMS.axialGain = 10.0;
+            PARAMS.lateralGain = 2.0;
+            PARAMS.headingGain = 5.0; // shared with turn
+        }
+
+        PARAMS.maxAngVel = Math.PI; // shared with path
+        PARAMS.maxAngAccel = Math.PI;
+
+        PARAMS.axialVelGain = 0.0;
+        PARAMS.lateralVelGain = 0.0;
+        PARAMS.headingVelGain = 0.0; // shared with turn
     }
 }
