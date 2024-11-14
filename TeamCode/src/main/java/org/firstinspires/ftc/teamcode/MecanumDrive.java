@@ -139,10 +139,11 @@ public final class MecanumDrive {
             imu = lazyImu.get();
 
             // TODO: reverse encoders if needed
-            // Competition bot
-            leftBack.setDirection(DcMotor.Direction.REVERSE);
-            // Spare bot
-//            rightFront.setDirection(DcMotor.Direction.FORWARD);
+            if (networkName.equals(PRIMARY_BOT)) {
+                leftBack.setDirection(DcMotor.Direction.REVERSE);
+            } else {
+                rightFront.setDirection(DcMotor.Direction.FORWARD);
+            }
         }
 
         @Override
@@ -238,16 +239,17 @@ public final class MecanumDrive {
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // TODO: reverse motor directions if needed
-        // Competition bot
-        leftFront.setDirection(DcMotor.Direction.FORWARD);
-        leftBack.setDirection(DcMotor.Direction.FORWARD);
-        rightFront.setDirection(DcMotor.Direction.FORWARD);
-        rightBack.setDirection(DcMotor.Direction.REVERSE);
-        // Spare bot
-//        leftFront.setDirection(DcMotor.Direction.REVERSE);
-//        leftBack.setDirection(DcMotor.Direction.REVERSE);
-//        rightFront.setDirection(DcMotor.Direction.FORWARD);
-//        rightBack.setDirection(DcMotor.Direction.FORWARD);
+        if (networkName.equals(PRIMARY_BOT)) {
+            leftFront.setDirection(DcMotor.Direction.FORWARD);
+            leftBack.setDirection(DcMotor.Direction.FORWARD);
+            rightFront.setDirection(DcMotor.Direction.FORWARD);
+            rightBack.setDirection(DcMotor.Direction.REVERSE);
+        } else {
+            leftFront.setDirection(DcMotor.Direction.REVERSE);
+            leftBack.setDirection(DcMotor.Direction.REVERSE);
+            rightFront.setDirection(DcMotor.Direction.FORWARD);
+            rightBack.setDirection(DcMotor.Direction.FORWARD);
+        }
 
         // TODO: make sure your config has an IMU with this name (can be BNO or BHI)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
