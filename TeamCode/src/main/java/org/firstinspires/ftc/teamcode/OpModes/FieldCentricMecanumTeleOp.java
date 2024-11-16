@@ -19,9 +19,9 @@ import org.firstinspires.ftc.teamcode.BuildConfig;
 @TeleOp(name = "FieldCentricMecanumTeleOp")
 public class FieldCentricMecanumTeleOp extends LinearOpMode {
 // good arm max    public static int armMaxPosition = 3270;
-public static int armMaxPosition = 3300; // arm max disabled
-    public static int slideMaxHorizontalPosition = 1060;
-    public static int slideMaxVerticalPosition = 2300;
+    public static int armMaxPosition = 4620;
+    public static int slideMaxHorizontalPosition = 1775;
+    public static int slideMaxVerticalPosition = 3290;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -33,15 +33,15 @@ public static int armMaxPosition = 3300; // arm max disabled
         int slideTargetPosition = 10;
         int slideMinPosition = 10;
         int slideMovementSpeed = 10;
-        double clawTargetPosition = 0.5;
+        double clawTargetPosition = 0.88;
         double clawSpeed = 1.0/30.0;
-        double clawMax = 0.84;
+        double clawMax = 0.88;
         double clawMin = 0.25;
         double clawOpen = 0.25;
         double clawClose = 0.88;
-        double wristTargetPosition = 0.5;
+        double wristTargetPosition = 0.95;
         double wristSpeed = 1.0/300.0;
-        double wristMax = 0.95;
+        double wristMax = 0.99;
         double wristMin = 0.39;
 
         double wristStraightUp = 0.5;
@@ -51,12 +51,12 @@ public static int armMaxPosition = 3300; // arm max disabled
 
         double wristSubmersible = 0.2;
         // driver assist high bucket arm, slide and wrist movement
-        int slideHighBucketPosition = 2200;
-        int armHighBucketPosition = 3270;
+        int slideHighBucketPosition = 3006;
+        int armHighBucketPosition = 4260;
         int slideBeginsExtendingForHighBucket = 1500;
         int wristBeginsFlippingForHighBucketArm = 3200;
         int wristBeginsFlippingForHighBucketSlide = 2100;
-        double wristHighBucketDeliverPosition = 0.95;
+        double wristHighBucketDeliverPosition = 0.99;
 
         double turnPower;
         double lastTurnPower = 0;
@@ -282,12 +282,12 @@ public static int armMaxPosition = 3300; // arm max disabled
                 }
             }
             if (gamepad2.a){
-                armTargetPosition = 520;
+                armTargetPosition = 542;
                 arm.setTargetPosition(armTargetPosition);
                 wristTargetPosition = 0.45;
                 wrist.setPosition(wristTargetPosition);
 
-                slideTargetPosition = 583;
+                slideTargetPosition = 724;
                 slide.setTargetPosition(slideTargetPosition);
             }
             if (gamepad2.b){
@@ -298,15 +298,15 @@ public static int armMaxPosition = 3300; // arm max disabled
 
                 slideTargetPosition = 260;
                 slide.setTargetPosition(slideTargetPosition);
-                claw.setPosition(clawOpen);
+                //claw.setPosition(clawOpen);
             }
             if (gamepad2.x){
-                armTargetPosition = 1450;
+                armTargetPosition = 1552;
                 arm.setTargetPosition(armTargetPosition);
                 wristTargetPosition = 0.8567;
                 wrist.setPosition(wristTargetPosition);
                 if (arm.getCurrentPosition() > 750) {
-                    slideTargetPosition = 975;
+                    slideTargetPosition = 1214;
                     slide.setTargetPosition(slideTargetPosition);
                 }
                 claw.setPosition(clawClose);
