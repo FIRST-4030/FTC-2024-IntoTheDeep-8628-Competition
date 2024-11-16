@@ -114,8 +114,7 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
         imu.initialize(parameters);
 
         if (opModeInInit()) {
-            String compilationDate = BuildConfig.COMPILATION_DATE;
-            telemetry.addData("Compiled on:", compilationDate);
+            telemetry.addData("Compiled on:", BuildConfig.COMPILATION_DATE);
             telemetry.update();
         }
 

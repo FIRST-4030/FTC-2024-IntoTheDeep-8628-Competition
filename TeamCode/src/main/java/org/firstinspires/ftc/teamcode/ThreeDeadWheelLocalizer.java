@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.GeneralConstants.PRIMARY_BOT;
+import static org.firstinspires.ftc.teamcode.MecanumDrive.networkName;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.DualNum;
 import com.acmerobotics.roadrunner.Time;
@@ -13,7 +16,6 @@ import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.messages.ThreeDeadWheelInputsMessage;
@@ -21,9 +23,9 @@ import org.firstinspires.ftc.teamcode.messages.ThreeDeadWheelInputsMessage;
 @Config
 public final class ThreeDeadWheelLocalizer implements Localizer {
     public static class Params {
-        public double par0YTicks = -2392.980820216595; // y position of the first parallel encoder (in tick units)
-        public double par1YTicks = 2342.3606379694747; // y position of the second parallel encoder (in tick units)
-        public double perpXTicks = 2021.4200053280765; // x position of the perpendicular encoder (in tick units)
+        public double par0YTicks; // y position of the first parallel encoder (in tick units)
+        public double par1YTicks; // y position of the second parallel encoder (in tick units)
+        public double perpXTicks; // x position of the perpendicular encoder (in tick units)
     }
 
     public static Params PARAMS = new Params();
@@ -36,6 +38,10 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
     private boolean initialized;
 
     public ThreeDeadWheelLocalizer(HardwareMap hardwareMap, double inPerTick) {
+
+        // set PARAMS based upon the network you are connected to
+        setParams();
+
         // TODO: make sure your config has **motors** with these names (or change them)
         //   the encoders should be plugged into the slot matching the named motor
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
@@ -45,10 +51,12 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
 
         // TODO: reverse encoder directions if needed
         par1.setDirection(DcMotor.Direction.REVERSE);
-        // Competition bot
-//        perp.setDirection(DcMotor.Direction.FORWARD);
-        // New bot
-        perp.setDirection(DcMotor.Direction.REVERSE);
+
+        if (networkName.equals(PRIMARY_BOT)) {
+            perp.setDirection(DcMotor.Direction.FORWARD);
+        } else {
+            perp.setDirection(DcMotor.Direction.REVERSE);
+        }
 
         this.inPerTick = inPerTick;
 
@@ -101,5 +109,18 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
         lastPerpPos = perpPosVel.position;
 
         return twist;
+    }
+
+    void setParams() {
+        if (networkName.equals(PRIMARY_BOT)) {
+            PARAMS.par0YTicks = -2392.980820216595;
+            PARAMS.par1YTicks = 2342.3606379694747;
+            PARAMS.perpXTicks = 2021.4200053280765;
+        } else {
+            PARAMS.par0YTicks = 0.0;
+            PARAMS.par1YTicks = 1.0;
+            PARAMS.perpXTicks = 0.0;
+        }
+
     }
 }

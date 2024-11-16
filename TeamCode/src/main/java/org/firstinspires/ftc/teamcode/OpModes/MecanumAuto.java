@@ -7,7 +7,6 @@ import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -140,6 +139,9 @@ public final class MecanumAuto extends LinearOpMode {
 
         vision.setActiveCameraOne(); */
 
+        telemetry.addData("Compiled on:", BuildConfig.COMPILATION_DATE);
+        telemetry.update();
+
         Pose2dWrapper poseOne = new Pose2dWrapper(PLACEONE_X, PLACEONE_Y, Math.toRadians(-90));
         Pose2dWrapper poseTwo = new Pose2dWrapper(PLACETWO_X, PLACETWO_Y, Math.toRadians(90));
         Pose2dWrapper poseThree = new Pose2dWrapper(PLACETHREE_X, PLACETHREE_Y, Math.toRadians(90));
@@ -158,12 +160,11 @@ public final class MecanumAuto extends LinearOpMode {
         ));
         AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(-20.0, 50.0);
 
-
         Pose2dWrapper startPose = new Pose2dWrapper(0, 0, Math.toRadians(90));
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose.toPose2d());
 
-         InitializeArmAndSlide.initializeArmAndSlide(telemetry, claw, wrist, slide, arm, slideTouchSensor, armTouchSensor);
+        InitializeArmAndSlide.initializeArmAndSlide(telemetry, claw, wrist, slide, arm, slideTouchSensor, armTouchSensor);
 
         waitForStart();
 //                        .splineToConstantHeading(new Vector2d(-33.0, 30.00), Math.toRadians(-90.0), baseVelConstraint,baseAccelConstraint)
