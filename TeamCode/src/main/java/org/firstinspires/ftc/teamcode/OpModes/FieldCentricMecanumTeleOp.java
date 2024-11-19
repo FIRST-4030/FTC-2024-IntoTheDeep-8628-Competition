@@ -22,17 +22,21 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
     public static int armMaxPosition = 4620;
     public static int slideMaxHorizontalPosition = 1775;
     public static int slideMaxVerticalPosition = 3290;
+    public static int armRotationSpeed = 30; // in ticks per game loop
+    public static int armBoundingBoxEnforcedPosition = 2600;
+    public static int slideMovementSpeed = 15; // in ticks per game loop
+    public static int armHighChamber = 1680;
+    public static int hangArmSubmersiblePosition = 4620;
+    public static int hangSlideSubmersiblePosition = 415;
+    public static double hangWristSubmersiblePosition = 0.45 ;
 
     @Override
     public void runOpMode() throws InterruptedException {
         // Put constants here
         int armTargetPosition = 10;
         int armMinPosition = 10;
-        int armRotationSpeed = 20;
-        int armBoundingBoxEnforcedPosition = 2600;
         int slideTargetPosition = 10;
         int slideMinPosition = 10;
-        int slideMovementSpeed = 10;
         double clawTargetPosition = 0.88;
         double clawSpeed = 1.0/30.0;
         double clawMax = 0.88;
@@ -254,6 +258,7 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
             } else if (gamepad2.left_bumper){
                 clawTargetPosition -= clawSpeed;
                 clawTargetPosition = Math.max (clawMin,clawTargetPosition);
+
                 claw.setPosition(clawTargetPosition);
             }
             if (gamepad1.right_trigger > 0.2 || gamepad2.right_trigger > 0.2){
@@ -300,7 +305,7 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                 //claw.setPosition(clawOpen);
             }
             if (gamepad2.x){
-                armTargetPosition = 1552;
+                armTargetPosition = armHighChamber;
                 arm.setTargetPosition(armTargetPosition);
                 wristTargetPosition = 0.8567;
                 wrist.setPosition(wristTargetPosition);
@@ -309,6 +314,14 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                     slide.setTargetPosition(slideTargetPosition);
                 }
                 claw.setPosition(clawClose);
+            }
+            if (gamepad2.back) {
+                armTargetPosition = hangArmSubmersiblePosition;
+                slideTargetPosition = hangSlideSubmersiblePosition;
+                wristTargetPosition = hangWristSubmersiblePosition;
+                arm.setTargetPosition(armTargetPosition);
+                slide.setTargetPosition(slideTargetPosition);
+                wrist.setPosition(wristTargetPosition);
             }
 
             telemetry.addData("armPosition", arm.getCurrentPosition());

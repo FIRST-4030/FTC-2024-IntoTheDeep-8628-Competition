@@ -16,6 +16,7 @@ import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.messages.ThreeDeadWheelInputsMessage;
@@ -53,7 +54,7 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
         par1.setDirection(DcMotor.Direction.REVERSE);
 
         if (networkName.equals(PRIMARY_BOT)) {
-            perp.setDirection(DcMotor.Direction.FORWARD);
+            perp.setDirection(DcMotor.Direction.REVERSE);
         } else {
             perp.setDirection(DcMotor.Direction.REVERSE);
         }

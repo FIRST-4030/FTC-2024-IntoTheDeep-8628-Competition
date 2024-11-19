@@ -29,50 +29,20 @@ import java.util.Arrays;
 @Config
 @Autonomous(name = "MecanumAuto", group="8628")
 public final class MecanumAuto extends LinearOpMode {
-    public static double INITIAL_X = -6;
-    public static double INITIAL_Y = 55;
-
-    public static double ROTATIONINITIAL = 0;
-
-    public static double PLACEONE_X = -45;
-    public static double PLACEONE_Y = 54;
-
-    public static double PLACETWO_X = -40;
-    public static double PLACETWO_Y = 43;
-
-    public static double PLACETHREE_X = -40;
-    public static double PLACETHREE_Y = 60;
-
-    public static double PLACEFOUR_X = -46;
-    public static double PLACEFOUR_Y = 60;
-
-    public static double ROTATIONFOUR = 180;
-
-    public static double PLACEFIVE_X = -46;
-    public static double PLACEFIVE_Y = 52;
-
-    public static double PLACESIX_X = 0;
-    public static double PLACESIX_Y = 52;
-    public static double ROTATIONSIX = 0;
-
-    public static double PLACESEVEN_X = 0;
-    public static double PLACESEVEN_Y = 43;
-
-    public static double wristSubmersible = 0.2;
     // driver assist high bucket arm, slide and wrist movement
     public static int slideHighBucketPosition = 2020;
     public static int armHighBucketPosition = 3300;
-    public static int slideBeginsExtendingForHighBucket = 1500;
-    public static int wristBeginsFlippingForHighBucketArm = 3200;
-    public static int wristBeginsFlippingForHighBucketSlide = 2100;
     public static int armPrepPosition = 500;
     public static int armPickupPosition = 15;
     public static int slidePickupPosition = 397;
-    public static double wristHighBucketDeliverPosition = 0.95;
     public static double wristPickupPosition = 0.466;
-    double wristStraightUp = 0.35;
-    double clawOpen = 0.25;
-    double clawClosed = 0.84;
+    public static double wristStraightUp = 0.35;
+    public static double clawOpen = 0.25;
+    public static double clawClosed = 0.84;
+    public static int sleepAfterClawClosed = 500;
+    public static int sleepAfterClawOpen = 500;
+    public static int sleepAfterWristDeliver = 1000;
+    public static double wristDeliverPos = 0.95;
 
     ComputerVision vision;
     AprilTagPoseFtc[] aprilTagTranslations = new AprilTagPoseFtc[11];
@@ -142,14 +112,6 @@ public final class MecanumAuto extends LinearOpMode {
         telemetry.addData("Compiled on:", BuildConfig.COMPILATION_DATE);
         telemetry.update();
 
-        Pose2dWrapper poseOne = new Pose2dWrapper(PLACEONE_X, PLACEONE_Y, Math.toRadians(-90));
-        Pose2dWrapper poseTwo = new Pose2dWrapper(PLACETWO_X, PLACETWO_Y, Math.toRadians(90));
-        Pose2dWrapper poseThree = new Pose2dWrapper(PLACETHREE_X, PLACETHREE_Y, Math.toRadians(90));
-        Pose2dWrapper poseFour = new Pose2dWrapper(PLACEFOUR_X, PLACEFOUR_Y, Math.toRadians(90));
-        Pose2dWrapper poseFive = new Pose2dWrapper(PLACEFIVE_X, PLACEFIVE_Y, Math.toRadians(90));
-        Pose2dWrapper poseSix = new Pose2dWrapper(PLACESIX_X, PLACESIX_Y, Math.toRadians(90));
-        Pose2dWrapper poseSeven = new Pose2dWrapper(PLACESEVEN_X, PLACESEVEN_Y, Math.toRadians(90));
-
         VelConstraint baseVelConstraint = new MinVelConstraint(Arrays.asList(
                 new TranslationalVelConstraint(40.0),
                 new AngularVelConstraint(Math.PI / 2)
@@ -203,7 +165,7 @@ public final class MecanumAuto extends LinearOpMode {
                     sleep(10);
                 }
                 claw.setPosition(clawClosed);
-                sleep(500);
+                sleep(sleepAfterClawClosed);
             }
             //deliver
             Pose2d deliverPose = new Pose2d(-24, 14, Math.toRadians(90));
@@ -226,10 +188,10 @@ public final class MecanumAuto extends LinearOpMode {
             while(slide.getCurrentPosition() < (slideHighBucketPosition-100)){
                 sleep(10);
             }
-            wrist.setPosition(0.95);
-            sleep(1000);
+            wrist.setPosition(wristDeliverPos);
+            sleep(sleepAfterWristDeliver);
             claw.setPosition(clawOpen);
-            sleep(500);
+            sleep(sleepAfterClawOpen);
 
         }
         wrist.setPosition(wristStraightUp);
