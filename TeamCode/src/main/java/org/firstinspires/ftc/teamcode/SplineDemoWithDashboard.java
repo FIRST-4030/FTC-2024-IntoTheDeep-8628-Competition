@@ -20,7 +20,7 @@ import java.util.Arrays;
 
 @Config
 @Disabled
-@TeleOp(name = "SplineDemoWithDashboard", group="Tuning")
+@TeleOp(name = "SplineDemoWithDashboard")
 public final class SplineDemoWithDashboard extends LinearOpMode {
     public static double INITIAL_X = -7;
     public static double INITIAL_Y = 62.5;

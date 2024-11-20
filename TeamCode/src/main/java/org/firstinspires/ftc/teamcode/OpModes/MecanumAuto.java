@@ -27,7 +27,7 @@ import org.firstinspires.ftc.teamcode.ComputerVision;
 import java.util.Arrays;
 
 @Config
-@Autonomous(name = "MecanumAuto", group="8628")
+@Autonomous(name = "MecanumAuto")
 public final class MecanumAuto extends LinearOpMode {
     // driver assist high bucket arm, slide and wrist movement
     public static int slideHighBucketPosition = 2020;
@@ -43,6 +43,18 @@ public final class MecanumAuto extends LinearOpMode {
     public static int sleepAfterClawOpen = 500;
     public static int sleepAfterWristDeliver = 1000;
     public static double wristDeliverPos = 0.95;
+    public static double maxTransVelocity = 40.0;
+    public static double accelMin = -20.0;
+    public static double accelMax = 50.0;
+
+    public static int poseFarSpikeX = -7;
+    public static int poseFarSpikeY = 22;
+    public static int poseMiddleSpikeX = -18;
+    public static int poseMiddleSpikeY = 22;
+    public static int poseCloseSpikeX = -21;
+    public static int poseCloseSpikeY = 25;
+    public static int poseDeliverX = -24;
+    public static int poseDeliverY = 14;
 
     ComputerVision vision;
     AprilTagPoseFtc[] aprilTagTranslations = new AprilTagPoseFtc[11];
@@ -113,14 +125,14 @@ public final class MecanumAuto extends LinearOpMode {
         telemetry.update();
 
         VelConstraint baseVelConstraint = new MinVelConstraint(Arrays.asList(
-                new TranslationalVelConstraint(40.0),
+                new TranslationalVelConstraint(maxTransVelocity),
                 new AngularVelConstraint(Math.PI / 2)
         ));
         VelConstraint curveVelConstraint = new MinVelConstraint(Arrays.asList(
                 new TranslationalVelConstraint(15.0),
                 new AngularVelConstraint(Math.PI / 2)
         ));
-        AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(-20.0, 50.0);
+        AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(accelMin, accelMax);
 
         Pose2dWrapper startPose = new Pose2dWrapper(0, 0, Math.toRadians(90));
 
@@ -138,9 +150,10 @@ public final class MecanumAuto extends LinearOpMode {
                 arm.setTargetPosition(armPrepPosition);
                 slide.setTargetPosition(slidePickupPosition);
                 wrist.setPosition(wristPickupPosition);
-                Pose2d farSpikePose = new Pose2d(-7, 22, Math.toRadians(90));
-                Pose2d middleSpikePose = new Pose2d(-18, 22, Math.toRadians(90));
-                Pose2d closeSpikePose = new Pose2d(-21, 25, Math.toRadians(120));
+                Pose2d farSpikePose = new Pose2d(poseFarSpikeX, poseFarSpikeY, Math.toRadians(90));
+                Pose2d middleSpikePose = new Pose2d(poseMiddleSpikeX, poseMiddleSpikeY, Math.toRadians(90));
+                Pose2d closeSpikePose = new Pose2d(poseCloseSpikeX, poseCloseSpikeY, Math.toRadians(120));
+
                 if (i == 1){
                     thisPose = farSpikePose;
                 } else if (i == 2){
@@ -168,7 +181,7 @@ public final class MecanumAuto extends LinearOpMode {
                 sleep(sleepAfterClawClosed);
             }
             //deliver
-            Pose2d deliverPose = new Pose2d(-24, 14, Math.toRadians(90));
+            Pose2d deliverPose = new Pose2d(poseDeliverX, poseDeliverY, Math.toRadians(90));
             thisPose = deliverPose;
             arm.setTargetPosition(armHighBucketPosition);
             wrist.setPosition(wristStraightUp);
@@ -192,7 +205,6 @@ public final class MecanumAuto extends LinearOpMode {
             sleep(sleepAfterWristDeliver);
             claw.setPosition(clawOpen);
             sleep(sleepAfterClawOpen);
-
         }
         wrist.setPosition(wristStraightUp);
         sleep(500);
@@ -200,13 +212,7 @@ public final class MecanumAuto extends LinearOpMode {
         slide.setTargetPosition(10);
         sleep(2000);
 
-
-
-
         // --------------------------------------
-
-
-
 
         if (isStopRequested()) return;
         telemetry.addData("Started Running", " ");
