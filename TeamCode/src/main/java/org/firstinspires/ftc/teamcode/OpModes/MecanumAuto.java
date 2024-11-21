@@ -29,12 +29,14 @@ import java.util.Arrays;
 @Config
 @Autonomous(name = "MecanumAuto")
 public final class MecanumAuto extends LinearOpMode {
+    // 1.455 slide
+    // 1.374
     // driver assist high bucket arm, slide and wrist movement
-    public static int slideHighBucketPosition = 2020;
-    public static int armHighBucketPosition = 3300;
-    public static int armPrepPosition = 500;
+    public static int slideHighBucketPosition = 2940;
+    public static int armHighBucketPosition = 4535;
+    public static int armPrepPosition = 687;
     public static int armPickupPosition = 15;
-    public static int slidePickupPosition = 397;
+    public static int slidePickupPosition = 578;
     public static double wristPickupPosition = 0.466;
     public static double wristStraightUp = 0.35;
     public static double clawOpen = 0.25;
@@ -42,7 +44,7 @@ public final class MecanumAuto extends LinearOpMode {
     public static int sleepAfterClawClosed = 500;
     public static int sleepAfterClawOpen = 500;
     public static int sleepAfterWristDeliver = 1000;
-    public static double wristDeliverPos = 0.95;
+    public static double wristDeliverPos = 0.99;
     public static double maxTransVelocity = 40.0;
     public static double accelMin = -20.0;
     public static double accelMax = 50.0;
@@ -55,6 +57,8 @@ public final class MecanumAuto extends LinearOpMode {
     public static int poseCloseSpikeY = 25;
     public static int poseDeliverX = -24;
     public static int poseDeliverY = 14;
+    public static double parkPoseX = 5;
+    public static double parkPoseY = 55;
 
     ComputerVision vision;
     AprilTagPoseFtc[] aprilTagTranslations = new AprilTagPoseFtc[11];
@@ -211,6 +215,12 @@ public final class MecanumAuto extends LinearOpMode {
         arm.setTargetPosition(10);
         slide.setTargetPosition(10);
         sleep(2000);
+        Pose2d parkPose = new Pose2d (parkPoseX,parkPoseY, Math.toRadians(0));
+        Actions.runBlocking(
+                drive.actionBuilder(lastPose)
+                        .splineTo(parkPose.position, parkPose.heading, curveVelConstraint, baseAccelConstraint)
+                        .build());
+        lastPose = parkPose;
 
         // --------------------------------------
 

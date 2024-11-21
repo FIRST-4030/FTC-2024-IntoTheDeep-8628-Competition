@@ -39,16 +39,16 @@ public final class RightAuto extends LinearOpMode {
     public static double startHeading = -90;
 
     public static double highChamberDeliverWrist = 0.95;
-    public static int highChamberDeliverArm = 2910;
-    public static int highChamberDeliverSlide = 750;
+    public static int highChamberDeliverArm = 3998;
+    public static int highChamberDeliverSlide = 1091;
     public static double highChamberPrepWrist = 0.95;
-    public static int highChamberPrepArm = 2910;
-    public static int highChamberPrepSlide = 289;
+    public static int highChamberPrepArm = 3998;
+    public static int highChamberPrepSlide = 420;
     public static double highChamberX = 0.0;
     public static double highChamberY = -33.0;
     public static double highChamberHeading = -90;
     public static int pickupArmPosition = 10;
-    public static int pickupSlidePosition = 260;
+    public static int pickupSlidePosition = 378;
     public static double pickupWristPosition = 0.7437;
     public static double pickupXPosition = 36.0;
     public static double pickupYPosition = -55.0;
@@ -178,7 +178,7 @@ public final class RightAuto extends LinearOpMode {
         Actions.runBlocking(
                 drive.actionBuilder(lastPose)
                         .strafeToConstantHeading(new Vector2d(35.0, highChamberY), baseVelConstraint,baseAccelConstraint)
-                        .strafeToConstantHeading(new Vector2d(46.0, -14.0), baseVelConstraint,baseAccelConstraint)
+                        .splineToConstantHeading(new Vector2d(46.0, -14.0), Math.toRadians(0), baseVelConstraint,baseAccelConstraint)
                         .strafeToConstantHeading(new Vector2d(46.0, -50.0), baseVelConstraint,baseAccelConstraint)
                         .strafeToConstantHeading(new Vector2d(50.0, -15.0), baseVelConstraint,baseAccelConstraint)
                         .strafeToConstantHeading(new Vector2d(57.0, -15.0), baseVelConstraint,baseAccelConstraint)
@@ -234,7 +234,8 @@ public final class RightAuto extends LinearOpMode {
 
             thisPose = new Pose2d (highChamberX + 2*(i+1), highChamberY, Math.toRadians(highChamberHeading));
             driveAction = drive.actionBuilder(lastPose)
-                    .strafeToLinearHeading(thisPose.position, thisPose.heading, baseVelConstraint, baseAccelConstraint)
+                    .setTangent(Math.toRadians(180))
+                    .splineToLinearHeading(thisPose, Math.toRadians(90), baseVelConstraint, baseAccelConstraint)
                     .build();
             arm.setTargetPosition(highChamberPrepArm);
             Actions.runBlocking(
