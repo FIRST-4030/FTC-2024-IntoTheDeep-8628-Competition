@@ -20,15 +20,15 @@ import org.firstinspires.ftc.teamcode.BuildConfig;
 public class FieldCentricMecanumTeleOp extends LinearOpMode {
 // good arm max    public static int armMaxPosition = 3270;
     public static class Arm {
-        public int armMaxPosition = 4620;
+        public int armMaxPosition = 4150;
         public int armRotationSpeed = 30; // in ticks per game loop
         public int armBoundingBoxEnforcedPosition = 2600;
         public int armHighChamber = 1680;
-        public int armHighBucketPosition = 4260;
+        public int armHighBucketPosition = 4150;
     }
 
     public static class Slide {
-        public int slideMaxHorizontalPosition = 1775;
+        public int slideMaxHorizontalPosition = 1564;
         public int slideMaxVerticalPosition = 3290;
         public int slideMovementSpeed = 15; // in ticks per game loop
         public int slideHighBucketPosition = 3006;
@@ -44,7 +44,7 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
     public static class Hang {
         public int hangArmSubmersiblePosition = 4620;
         public int hangSlideSubmersiblePosition = 415;
-        public double hangWristSubmersiblePosition = 0.45 ;
+        public double hangWristSubmersiblePosition = 0.39 ;
     }
 
     public static Arm ARM = new Arm();

@@ -55,7 +55,7 @@ public final class RightAuto extends LinearOpMode {
     public static double pickupYPosition = -54.0;
     public static double pickupHeading = -90;
     double clawOpen = 0.25;
-    double clawClosed = 0.84;
+    public static double clawClosed = 0.89;
     public static double accelMin = -20;
     public static double accelMax = 50;
     public static double fastAccelMin = -50;
