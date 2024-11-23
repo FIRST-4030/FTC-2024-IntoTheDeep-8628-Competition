@@ -2,10 +2,14 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.AccelConstraint;
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.AngularVelConstraint;
 import com.acmerobotics.roadrunner.MinVelConstraint;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -49,16 +53,18 @@ public final class MecanumAuto extends LinearOpMode {
     public static double accelMin = -20.0;
     public static double accelMax = 50.0;
 
-    public static int poseFarSpikeX = -7;
-    public static int poseFarSpikeY = 22;
-    public static int poseMiddleSpikeX = -18;
-    public static int poseMiddleSpikeY = 22;
-    public static int poseCloseSpikeX = -21;
-    public static int poseCloseSpikeY = 25;
-    public static int poseDeliverX = -24;
-    public static int poseDeliverY = 14;
+    public static double poseFarSpikeX = -7;
+    public static double poseFarSpikeY = 22;
+    public static double poseMiddleSpikeX = -18;
+    public static double poseMiddleSpikeY = 22;
+    public static double poseCloseSpikeX = -20;
+    public static double poseCloseSpikeY = 23;
+    public static double poseDeliverX = -24;
+    public static double poseDeliverY = 14;
     public static double parkPoseX = 5;
     public static double parkPoseY = 55;
+    public static int parkArm = 2000;
+    public static int parkSlide = 1690;
 
     ComputerVision vision;
     AprilTagPoseFtc[] aprilTagTranslations = new AprilTagPoseFtc[11];
@@ -133,10 +139,11 @@ public final class MecanumAuto extends LinearOpMode {
                 new AngularVelConstraint(Math.PI / 2)
         ));
         VelConstraint curveVelConstraint = new MinVelConstraint(Arrays.asList(
-                new TranslationalVelConstraint(15.0),
+                new TranslationalVelConstraint(20.0),
                 new AngularVelConstraint(Math.PI / 2)
         ));
         AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(accelMin, accelMax);
+        AccelConstraint slowAccelConstraint = new ProfileAccelConstraint(-20, 30);
 
         Pose2dWrapper startPose = new Pose2dWrapper(0, 0, Math.toRadians(90));
 
@@ -152,8 +159,11 @@ public final class MecanumAuto extends LinearOpMode {
             // pickup
             if ( i > 0){
                 arm.setTargetPosition(armPrepPosition);
-                slide.setTargetPosition(slidePickupPosition);
                 wrist.setPosition(wristPickupPosition);
+                if ( i == 3){
+                    sleep(100);
+                    slide.setTargetPosition(slidePickupPosition);
+                }
                 Pose2d farSpikePose = new Pose2d(poseFarSpikeX, poseFarSpikeY, Math.toRadians(90));
                 Pose2d middleSpikePose = new Pose2d(poseMiddleSpikeX, poseMiddleSpikeY, Math.toRadians(90));
                 Pose2d closeSpikePose = new Pose2d(poseCloseSpikeX, poseCloseSpikeY, Math.toRadians(120));
@@ -171,11 +181,21 @@ public final class MecanumAuto extends LinearOpMode {
                         sleep(10);
                     }
                 }
-
+                Action driveAction = drive.actionBuilder(lastPose)
+                        .strafeToLinearHeading(thisPose.position, thisPose.heading, baseVelConstraint, baseAccelConstraint)
+                        .build();
                 Actions.runBlocking(
-                        drive.actionBuilder(lastPose)
-                                .strafeToLinearHeading(thisPose.position, thisPose.heading, baseVelConstraint, baseAccelConstraint)
-                                .build());
+                        new ParallelAction(
+                                driveAction,
+                                new SequentialAction(
+                                        new SleepAction(0.1),
+                                        (telemetryPacket) -> {
+                                            slide.setTargetPosition(slidePickupPosition);
+                                            return false;
+                                        }
+                                )
+                        )
+                );
                 lastPose = thisPose;
                 arm.setTargetPosition(armPickupPosition);
                 while(arm.getCurrentPosition() > (armPickupPosition+100)){
@@ -185,7 +205,8 @@ public final class MecanumAuto extends LinearOpMode {
                 sleep(sleepAfterClawClosed);
             }
             //deliver
-            Pose2d deliverPose = new Pose2d(poseDeliverX, poseDeliverY, Math.toRadians(90));
+            Pose2d deliverPose = new Pose2d(poseDeliverX+(i==0?-6:0), poseDeliverY, Math.toRadians(90));
+
             thisPose = deliverPose;
             arm.setTargetPosition(armHighBucketPosition);
             wrist.setPosition(wristStraightUp);
@@ -211,10 +232,11 @@ public final class MecanumAuto extends LinearOpMode {
             sleep(sleepAfterClawOpen);
         }
         wrist.setPosition(wristStraightUp);
-        sleep(500);
-        arm.setTargetPosition(10);
-        slide.setTargetPosition(10);
-        sleep(2000);
+        arm.setTargetPosition(parkArm);
+        sleep(100);
+        slide.setTargetPosition(parkSlide);
+        sleep(100);
+        wrist.setPosition(0.95);
         Pose2d parkPose = new Pose2d (parkPoseX,parkPoseY, Math.toRadians(0));
         Actions.runBlocking(
                 drive.actionBuilder(lastPose)

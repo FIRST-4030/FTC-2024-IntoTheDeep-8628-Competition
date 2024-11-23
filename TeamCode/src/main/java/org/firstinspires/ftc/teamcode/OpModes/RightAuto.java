@@ -39,22 +39,39 @@ public final class RightAuto extends LinearOpMode {
     public static double startHeading = -90;
 
     public static double highChamberDeliverWrist = 0.95;
-    public static int highChamberDeliverArm = 3998;
-    public static int highChamberDeliverSlide = 1091;
+    public static int highChamberDeliverArm = 4363;
+    public static int highChamberDeliverSlide = 1350;
     public static double highChamberPrepWrist = 0.95;
-    public static int highChamberPrepArm = 3998;
-    public static int highChamberPrepSlide = 420;
+    public static int highChamberPrepArm = 4363;
+    public static int highChamberPrepSlide = 650;
     public static double highChamberX = 0.0;
-    public static double highChamberY = -33.0;
+    public static double highChamberY = -38.0;
     public static double highChamberHeading = -90;
     public static int pickupArmPosition = 10;
+    public static int pickupSlidePrepPosition = 10;
     public static int pickupSlidePosition = 378;
     public static double pickupWristPosition = 0.7437;
-    public static double pickupXPosition = 36.0;
-    public static double pickupYPosition = -55.0;
+    public static double pickupXPosition = 40.0;
+    public static double pickupYPosition = -54.0;
     public static double pickupHeading = -90;
     double clawOpen = 0.25;
     double clawClosed = 0.84;
+    public static double accelMin = -20;
+    public static double accelMax = 50;
+    public static double fastAccelMin = -50;
+    public static double cp0tan = 0;
+    public static double cp1x = 32;
+    public static double cp1y = -38;
+    public static double cp1tan = 0;
+    public static double cp2x = 42;
+    public static double cp2y = -14;
+    public static double cp2tan = 0;
+    public static double firstSpikeX = 47;
+    public static double firstSpikeY = -14;
+    public static double firstSpikeTan = 0;
+    public static double parkX = 50;
+    public static double parkY = -58;
+    public static double parkHeading = 0;
 
     ComputerVision vision;
     AprilTagPoseFtc[] aprilTagTranslations = new AprilTagPoseFtc[11];
@@ -129,7 +146,8 @@ public final class RightAuto extends LinearOpMode {
                 new TranslationalVelConstraint(15.0),
                 new AngularVelConstraint(Math.PI / 2)
         ));
-        AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(-20.0, 50.0);
+        AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(accelMin, accelMax);
+        AccelConstraint fastAccelConstraint = new ProfileAccelConstraint(fastAccelMin, accelMax);
 
 
         Pose2dWrapper startPose = new Pose2dWrapper(startX, startY, Math.toRadians(startHeading));
@@ -162,25 +180,30 @@ public final class RightAuto extends LinearOpMode {
                         )
                 )
         );
+        while(Math.abs(arm.getCurrentPosition() - highChamberPrepArm) > 10){
+            sleep(10);
+        }
         lastPose = thisPose;
-        sleep(100);
+//        sleep(100);
         slide.setTargetPosition(highChamberDeliverSlide);
         arm.setTargetPosition(highChamberDeliverArm);
         wrist.setPosition(highChamberDeliverWrist);
-        while(Math.abs(slide.getCurrentPosition() - highChamberDeliverSlide) < 10){
+        while(Math.abs(slide.getCurrentPosition() - highChamberDeliverSlide) > 10){
             sleep(10);
         }
-        sleep(500);
+//        sleep(500);
         claw.setPosition(clawOpen);
         sleep(100);
         arm.setTargetPosition(10);
         slide.setTargetPosition(10);
         Actions.runBlocking(
                 drive.actionBuilder(lastPose)
-                        .strafeToConstantHeading(new Vector2d(35.0, highChamberY), baseVelConstraint,baseAccelConstraint)
-                        .splineToConstantHeading(new Vector2d(46.0, -14.0), Math.toRadians(0), baseVelConstraint,baseAccelConstraint)
-                        .strafeToConstantHeading(new Vector2d(46.0, -50.0), baseVelConstraint,baseAccelConstraint)
-                        .strafeToConstantHeading(new Vector2d(50.0, -15.0), baseVelConstraint,baseAccelConstraint)
+                        .setTangent(cp0tan)
+                        .splineToConstantHeading(new Vector2d(cp1x, cp1y), Math.toRadians(cp1tan), baseVelConstraint,baseAccelConstraint)
+                        .splineToConstantHeading(new Vector2d(cp2x, cp2y), Math.toRadians(cp2tan), baseVelConstraint,baseAccelConstraint)
+                        .splineToConstantHeading(new Vector2d(firstSpikeX, firstSpikeY), Math.toRadians(firstSpikeTan), baseVelConstraint,baseAccelConstraint)
+                        .strafeToConstantHeading(new Vector2d(firstSpikeX, -50.0), baseVelConstraint,fastAccelConstraint)
+                        .strafeToConstantHeading(new Vector2d(50.0, -15.0), baseVelConstraint,fastAccelConstraint)
                         .strafeToConstantHeading(new Vector2d(57.0, -15.0), baseVelConstraint,baseAccelConstraint)
                         .build());
         lastPose = new Pose2d(57.0, -15.0, Math.toRadians(-90.0));
@@ -189,7 +212,7 @@ public final class RightAuto extends LinearOpMode {
         slide.setTargetPosition(pickupSlidePosition);
         Actions.runBlocking(
                 drive.actionBuilder(lastPose)
-                        .strafeToConstantHeading(new Vector2d(57.0, -55.0), baseVelConstraint,baseAccelConstraint)
+                        .strafeToConstantHeading(new Vector2d(57.0, -55.0), baseVelConstraint,fastAccelConstraint)
 //                .splineToConstantHeading(new Vector2d(35.0, highChamberY), Math.toRadians(90.0), baseVelConstraint,baseAccelConstraint)
 //                .splineToConstantHeading(new Vector2d(40.0, -14.00), Math.toRadians(130.0), baseVelConstraint,baseAccelConstraint)
 //                .splineToConstantHeading(new Vector2d(45.0, -10.0), Math.toRadians(-180.0), curveVelConstraint,baseAccelConstraint)
@@ -218,7 +241,7 @@ public final class RightAuto extends LinearOpMode {
                                         (telemetryPacket) -> {
                                             claw.setPosition(clawOpen);
                                             wrist.setPosition(pickupWristPosition);
-                                            slide.setTargetPosition(pickupSlidePosition);
+                                            slide.setTargetPosition(pickupSlidePrepPosition);
                                             return false;
                                         }
                                 )
@@ -227,14 +250,19 @@ public final class RightAuto extends LinearOpMode {
                 lastPose = thisPose;
             }
 //            sleep(200);
+            slide.setTargetPosition(pickupSlidePosition);
+            double time = getRuntime();
+            while(getRuntime()-time < 0.5 && Math.abs(slide.getCurrentPosition() - pickupSlidePosition) > 10){
+                sleep(10);
+            }
             claw.setPosition(clawClosed);
             sleep(200);
 
 
 
-            thisPose = new Pose2d (highChamberX + 2*(i+1), highChamberY, Math.toRadians(highChamberHeading));
+            thisPose = new Pose2d (highChamberX + 2*(i+2), highChamberY, Math.toRadians(highChamberHeading));
             driveAction = drive.actionBuilder(lastPose)
-                    .setTangent(Math.toRadians(180))
+                    .setTangent(Math.toRadians(170))
                     .splineToLinearHeading(thisPose, Math.toRadians(90), baseVelConstraint, baseAccelConstraint)
                     .build();
             arm.setTargetPosition(highChamberPrepArm);
@@ -244,7 +272,6 @@ public final class RightAuto extends LinearOpMode {
                             new SequentialAction(
                                     new SleepAction(1.0),
                                     (telemetryPacket) -> {
-                                        arm.setTargetPosition(highChamberPrepArm);
                                         wrist.setPosition(highChamberPrepWrist);
                                         slide.setTargetPosition(highChamberPrepSlide);
                                         return false;
@@ -256,16 +283,23 @@ public final class RightAuto extends LinearOpMode {
             slide.setTargetPosition(highChamberDeliverSlide);
             arm.setTargetPosition(highChamberDeliverArm);
             wrist.setPosition(highChamberDeliverWrist);
-            while(Math.abs(slide.getCurrentPosition() - highChamberDeliverSlide) < 10){
+            while(Math.abs(slide.getCurrentPosition() - highChamberDeliverSlide) > 10){
                 sleep(10);
             }
-            sleep(500);
             claw.setPosition(clawOpen);
             sleep(100);
 
 
 
         }
+        slide.setTargetPosition(10);
+        arm.setTargetPosition(10);
+        Pose2d parkPose = new Pose2d(parkX,parkY,Math.toRadians(parkHeading));
+        Actions.runBlocking(
+                drive.actionBuilder(lastPose)
+                        .splineTo(parkPose.position, parkPose.heading, baseVelConstraint, baseAccelConstraint)
+                        .build());
+
 
 //        for (int i = 0; i < 4; i++) {
 //            // pickup
