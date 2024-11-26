@@ -43,7 +43,7 @@ public final class SampleAuto extends LinearOpMode {
     public static int slidePickupPosition = 578;
     public static double wristPickupPosition = 0.466;
     public static double wristStraightUp = 0.35;
-    public static double clawOpen = 0.25;
+    public static double clawOpen = 0.04;
     public static double clawClosed = 0.84;
     public static int sleepAfterClawClosed = 500;
     public static int sleepAfterClawOpen = 500;

@@ -47,6 +47,12 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
         public double hangWristSubmersiblePosition = 0.39 ;
     }
 
+    public static double clawIncrement = 1.0 / 30.0;
+    public static double clawMax = 0.88;
+    public static double clawMin = 0.04;
+    public static double clawOpen = 0.04;
+    public static double clawClose = 0.88;
+
     public static Arm ARM = new Arm();
     public static Slide SLIDE = new Slide();
     public static Wrist WRIST = new Wrist();
@@ -60,11 +66,6 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
         int slideTargetPosition = 10;
         int slideMinPosition = 10;
         double clawTargetPosition = 0.88;
-        double clawIncrement = 1.0/30.0;
-        double clawMax = 0.88;
-        double clawMin = 0.25;
-        double clawOpen = 0.25;
-        double clawClose = 0.88;
         double wristTargetPosition = 0.95;
         double wristIncrement = 1.0/300.0;
         double wristMax = 0.99;
