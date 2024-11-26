@@ -31,8 +31,8 @@ import org.firstinspires.ftc.teamcode.ComputerVision;
 import java.util.Arrays;
 
 @Config
-@Autonomous(name = "MecanumAuto")
-public final class MecanumAuto extends LinearOpMode {
+@Autonomous(name = "SampleAuto")
+public final class SampleAuto extends LinearOpMode {
     // 1.455 slide
     // 1.374
     // driver assist high bucket arm, slide and wrist movement

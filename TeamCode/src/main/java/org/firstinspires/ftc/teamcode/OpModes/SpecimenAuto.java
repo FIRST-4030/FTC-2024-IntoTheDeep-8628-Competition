@@ -31,21 +31,21 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
 import java.util.Arrays;
 
 @Config
-@Autonomous(name = "RightAuto", group="8628")
-public final class RightAuto extends LinearOpMode {
+@Autonomous(name = "SpecimenAuto", group="8628")
+public final class SpecimenAuto extends LinearOpMode {
 
     public static double startX = 8;
     public static double startY = -62;
     public static double startHeading = -90;
 
-    public static double highChamberDeliverWrist = 0.95;
-    public static int highChamberDeliverArm = 4363;
-    public static int highChamberDeliverSlide = 1350;
-    public static double highChamberPrepWrist = 0.95;
-    public static int highChamberPrepArm = 4363;
-    public static int highChamberPrepSlide = 650;
+    public static double highChamberDeliverWrist = 0.913;
+    public static int highChamberDeliverArm = 4102;
+    public static int highChamberDeliverSlide = 1300;
+    public static double highChamberPrepWrist = 0.913;
+    public static int highChamberPrepArm = 4102;
+    public static int highChamberPrepSlide = 500;
     public static double highChamberX = 0.0;
-    public static double highChamberY = -38.0;
+    public static double highChamberY = -37;
     public static double highChamberHeading = -90;
     public static int pickupArmPosition = 10;
     public static int pickupSlidePrepPosition = 10;
