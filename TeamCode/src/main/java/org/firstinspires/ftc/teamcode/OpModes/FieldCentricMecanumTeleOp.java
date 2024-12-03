@@ -23,7 +23,7 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
         public int armMaxPosition = 4150;
         public int armRotationSpeed = 30; // in ticks per game loop
         public int armBoundingBoxEnforcedPosition = 2600;
-        public int armHighChamber = 1680;
+        public int armHighChamber = 1513;
         public int armHighBucketPosition = 4150;
     }
 
@@ -160,7 +160,7 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                 YawPitchRollAngles yawPitchRollAngles = getImuAngle(imu);
                 AngularVelocity angularVelocity = getAngularVelocity(imu);
                 double velocity = angularVelocity.zRotationRate;
-                double minPowerToMoveRobot = 0.25;
+                double minPowerToMoveRobot = 0.2;
                 double angle = yawPitchRollAngles.getYaw();
                 double error = targetAngle - angle;
                 if (error > 180) {

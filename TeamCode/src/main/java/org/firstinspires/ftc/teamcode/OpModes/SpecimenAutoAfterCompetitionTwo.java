@@ -31,7 +31,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
 import java.util.Arrays;
 
 @Config
-@Autonomous(name = "SpecimenAutoAfterCompetitionTwo", group="8628")
+@Autonomous(name = "SpecimenAuto", group="8628")
 public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
 
     public static double startX = 8;
@@ -61,7 +61,7 @@ public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
     public static double accelMax = 50;
     public static double fastAccelMin = -50;
     public static double cp0tan = 0;
-    public static double cp1x = 34;
+    public static double cp1x = 32;
     public static double cp1y = -38;
     public static double cp1tan = 0;
     public static double cp2x = 42;
@@ -70,9 +70,9 @@ public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
     public static double firstSpikeX = 47;
     public static double firstSpikeY = -14;
     public static double firstSpikeTan = 0;
-    public static double parkX = 50;
+    public static double parkX = 55;
     public static double parkY = -58;
-    public static double parkHeading = 0;
+    public static double parkHeading = -20;
 
     ComputerVision vision;
     AprilTagPoseFtc[] aprilTagTranslations = new AprilTagPoseFtc[11];
@@ -181,7 +181,8 @@ public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
                         )
                 )
         );
-        while(Math.abs(arm.getCurrentPosition() - highChamberPrepArm) > 10){
+        double currentTime = runtime.milliseconds();
+        while(Math.abs(arm.getCurrentPosition() - highChamberPrepArm) > 10 && runtime.milliseconds()-currentTime < 500){
             sleep(10);
         }
         lastPose = thisPose;
@@ -294,21 +295,23 @@ public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
                     )
             );
             lastPose = thisPose;
-            while(Math.abs(arm.getCurrentPosition() - highChamberPrepArm) > 10){
+            currentTime = runtime.milliseconds();
+            while(Math.abs(arm.getCurrentPosition() - highChamberPrepArm) > 10 && runtime.milliseconds()-currentTime < 500){
                 sleep(10);
             }
+            telemetry.addData("time waiting for arm " + (i+1) + "delivery", (runtime.milliseconds()-currentTime)/1000.0);
             slide.setTargetPosition(highChamberDeliverSlide);
             arm.setTargetPosition(highChamberDeliverArm);
             wrist.setPosition(highChamberDeliverWrist);
-            while(Math.abs(slide.getCurrentPosition() - highChamberDeliverSlide) > 10){
+            currentTime = runtime.milliseconds();
+            while(Math.abs(slide.getCurrentPosition() - highChamberDeliverSlide) > 20){
                 sleep(10);
             }
+            telemetry.addData("time waiting for slide " + (i+1) + "delivery", (runtime.milliseconds()-currentTime)/1000.0);
             claw.setPosition(clawOpen);
             sleep(100);
-
-
-
         }
+        telemetry.update();
         slide.setTargetPosition(10);
         arm.setTargetPosition(10);
         Pose2d parkPose = new Pose2d(parkX,parkY,Math.toRadians(parkHeading));
@@ -396,10 +399,8 @@ public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
 
         if (isStopRequested()) return;
         telemetry.addData("Started Running", " ");
-        telemetry.update();
         sleep(startDelay);
         outputLog(drive); //1
-
     }
     public void outputLog (MecanumDrive drive){
         RobotLog.d("WAY: Current Robot Pose Estimate and time: X: %.03f Y: %.03f Heading: %.03f ms: %.03f iteration: %d", drive.pose.position.x, drive.pose.position.y, Math.toDegrees(drive.pose.heading.real), runtime.milliseconds(), i);

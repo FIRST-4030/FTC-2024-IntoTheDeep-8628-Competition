@@ -36,7 +36,7 @@ public final class SampleAuto extends LinearOpMode {
     // 1.455 slide
     // 1.374
     // driver assist high bucket arm, slide and wrist movement
-    public static int slideHighBucketPosition = 2900;
+    public static int slideHighBucketPosition = 3000;
     public static int armHighBucketPosition = 4400;
     public static int armPrepPosition = 687;
     public static int armPickupPosition = 15;
@@ -51,19 +51,20 @@ public final class SampleAuto extends LinearOpMode {
     public static double wristDeliverPos = 0.99;
     public static double maxTransVelocity = 40.0;
     public static double accelMin = -20.0;
-    public static double accelMax = 50.0;
+    public static double accelMax = 30.0;
 
-    public static double poseFarSpikeX = -8;
+    public static double poseFarSpikeX = -9;
     public static double poseFarSpikeY = 22;
-    public static double poseMiddleSpikeX = -18;
+    public static double poseMiddleSpikeX = -19;
     public static double poseMiddleSpikeY = 22;
     public static double poseCloseSpikeX = -20;
     public static double poseCloseSpikeY = 23;
-    public static double poseDeliverX = -24;
-    public static double poseDeliverY = 12;
+    public static double poseDeliverX = -19; // old -24
+    public static double poseDeliverY = 11; // old 12
+    public static double poseDeliverHeading = 45; // old 90
     public static double parkPoseX = 6;
     public static double parkPoseY = 55;
-    public static int parkArm = 2000;
+    public static int parkArm = 1900;
     public static int parkSlide = 1690;
 
     ComputerVision vision;
@@ -205,11 +206,13 @@ public final class SampleAuto extends LinearOpMode {
                 sleep(sleepAfterClawClosed);
             }
             //deliver
-            Pose2d deliverPose = new Pose2d(poseDeliverX+(i==0?-6:0), poseDeliverY, Math.toRadians(90));
+            Pose2d deliverPose;// = new Pose2d(poseDeliverX+(i==0?-6:0), poseDeliverY, poseDeliverHeading);
+            deliverPose = new Pose2d(poseDeliverX, poseDeliverY, poseDeliverHeading);
 
             thisPose = deliverPose;
             arm.setTargetPosition(armHighBucketPosition);
             wrist.setPosition(wristStraightUp);
+            slide.setTargetPosition(slideHighBucketPosition);
             Actions.runBlocking(
                     drive.actionBuilder(lastPose)
                             .strafeToLinearHeading(thisPose.position, thisPose.heading, baseVelConstraint, baseAccelConstraint)
@@ -222,7 +225,6 @@ public final class SampleAuto extends LinearOpMode {
                             //.strafeTo(poseFive.toPose2d().position)
                             .build());
             lastPose = thisPose;
-            slide.setTargetPosition(slideHighBucketPosition);
             while(slide.getCurrentPosition() < (slideHighBucketPosition-100)){
                 sleep(10);
             }
