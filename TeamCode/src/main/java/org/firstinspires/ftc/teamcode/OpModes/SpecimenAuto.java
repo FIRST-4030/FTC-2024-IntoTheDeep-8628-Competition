@@ -89,7 +89,7 @@ public final class SpecimenAuto extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-
+        MecanumDrive.errorTolerance = 100;
         DcMotor slide = hardwareMap.dcMotor.get("slide");
         DcMotor arm = hardwareMap.dcMotor.get("arm");
         Servo claw = hardwareMap.servo.get("claw");

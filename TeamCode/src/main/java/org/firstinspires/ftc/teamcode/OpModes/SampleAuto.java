@@ -49,23 +49,24 @@ public final class SampleAuto extends LinearOpMode {
     public static int sleepAfterClawOpen = 500;
     public static int sleepAfterWristDeliver = 1000;
     public static double wristDeliverPos = 0.99;
-    public static double maxTransVelocity = 40.0;
+    public static double maxTransVelocity = 30.0;
     public static double accelMin = -20.0;
-    public static double accelMax = 30.0;
+    public static double accelMax = 40.0;
 
     public static double poseFarSpikeX = -9;
     public static double poseFarSpikeY = 22;
-    public static double poseMiddleSpikeX = -19;
+    public static double poseMiddleSpikeX = -20;
     public static double poseMiddleSpikeY = 22;
     public static double poseCloseSpikeX = -20;
     public static double poseCloseSpikeY = 23;
-    public static double poseDeliverX = -19; // old -24
-    public static double poseDeliverY = 11; // old 12
+    public static double poseDeliverX = -20; // old -24
+    public static double poseDeliverY = 9; // old 12
     public static double poseDeliverHeading = 45; // old 90
     public static double parkPoseX = 6;
     public static double parkPoseY = 55;
     public static int parkArm = 1900;
     public static int parkSlide = 1690;
+    public static double maxRotationSpeed = 67;
 
     ComputerVision vision;
     AprilTagPoseFtc[] aprilTagTranslations = new AprilTagPoseFtc[11];
@@ -137,11 +138,11 @@ public final class SampleAuto extends LinearOpMode {
 
         VelConstraint baseVelConstraint = new MinVelConstraint(Arrays.asList(
                 new TranslationalVelConstraint(maxTransVelocity),
-                new AngularVelConstraint(Math.PI / 2)
+                new AngularVelConstraint(Math.toRadians(maxRotationSpeed))
         ));
         VelConstraint curveVelConstraint = new MinVelConstraint(Arrays.asList(
                 new TranslationalVelConstraint(20.0),
-                new AngularVelConstraint(Math.PI / 2)
+                new AngularVelConstraint(Math.toRadians(maxRotationSpeed))
         ));
         AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(accelMin, accelMax);
         AccelConstraint slowAccelConstraint = new ProfileAccelConstraint(-20, 30);
@@ -175,6 +176,7 @@ public final class SampleAuto extends LinearOpMode {
                     thisPose = middleSpikePose;
                 } else if (i == 3){
                     thisPose = closeSpikePose;
+                    MecanumDrive.errorTolerance = 100;
                 }
 
                 if (i == 3){
@@ -198,6 +200,7 @@ public final class SampleAuto extends LinearOpMode {
                         )
                 );
                 lastPose = thisPose;
+                MecanumDrive.errorTolerance = 1.5;
                 arm.setTargetPosition(armPickupPosition);
                 while(arm.getCurrentPosition() > (armPickupPosition+100)){
                     sleep(10);
