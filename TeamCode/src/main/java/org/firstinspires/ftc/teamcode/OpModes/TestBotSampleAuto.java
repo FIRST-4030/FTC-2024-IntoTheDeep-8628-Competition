@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -25,8 +26,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
 
 import java.util.Arrays;
 
-@Config
-@Autonomous(name = "TestBotSampleAuto", group="8628")
+@Disabled
+@Autonomous(name = "TestBotSampleAuto")
 public final class TestBotSampleAuto extends LinearOpMode {
     public static double INITIAL_X = -6;
     public static double INITIAL_Y = 55;
