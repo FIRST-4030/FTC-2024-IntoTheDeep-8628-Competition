@@ -313,8 +313,8 @@ public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
             sleep(100);
         }
         telemetry.update();
-        slide.setTargetPosition(10);
-        arm.setTargetPosition(10);
+//        slide.setTargetPosition(10);
+        arm.setTargetPosition(200);
         Pose2d parkPose = new Pose2d(parkX,parkY,Math.toRadians(parkHeading));
         Actions.runBlocking(
                 drive.actionBuilder(lastPose)
