@@ -44,6 +44,7 @@ public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
     public static double highChamberPrepWrist = 0.99;
     public static int highChamberPrepArm = 4450;
     public static int highChamberPrepSlide = 897;
+    public static int highChamberArmTolerance = 50;
     public static double highChamberX = 0.0;
     public static double highChamberY = -36;
     public static double highChamberHeading = -90;
@@ -182,7 +183,7 @@ public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
                 )
         );
         double currentTime = runtime.milliseconds();
-        while(Math.abs(arm.getCurrentPosition() - highChamberPrepArm) > 10 && runtime.milliseconds()-currentTime < 500){
+        while(Math.abs(arm.getCurrentPosition() - highChamberPrepArm) > highChamberArmTolerance && runtime.milliseconds()-currentTime < 500){
             sleep(10);
         }
         lastPose = thisPose;
@@ -296,7 +297,7 @@ public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
             );
             lastPose = thisPose;
             currentTime = runtime.milliseconds();
-            while(Math.abs(arm.getCurrentPosition() - highChamberPrepArm) > 10 && runtime.milliseconds()-currentTime < 500){
+            while(Math.abs(arm.getCurrentPosition() - highChamberPrepArm) > highChamberArmTolerance && runtime.milliseconds()-currentTime < 500){
                 sleep(10);
             }
             telemetry.addData("time waiting for arm " + (i+1) + "delivery", (runtime.milliseconds()-currentTime)/1000.0);

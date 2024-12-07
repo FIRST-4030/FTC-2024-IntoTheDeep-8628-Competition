@@ -23,6 +23,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.BuildConfig;
+import org.firstinspires.ftc.teamcode.LogFile;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Pose2dWrapper;
 import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
@@ -53,9 +54,9 @@ public final class SampleAuto extends LinearOpMode {
     public static double accelMin = -20.0;
     public static double accelMax = 40.0;
 
-    public static double poseFarSpikeX = -9;
+    public static double poseFarSpikeX = -9.5;
     public static double poseFarSpikeY = 22;
-    public static double poseMiddleSpikeX = -20;
+    public static double poseMiddleSpikeX = -19.5;
     public static double poseMiddleSpikeY = 22;
     public static double poseCloseSpikeX = -20;
     public static double poseCloseSpikeY = 23;
@@ -67,7 +68,9 @@ public final class SampleAuto extends LinearOpMode {
     public static int parkArm = 1900;
     public static int parkSlide = 1690;
     public static double maxRotationSpeed = 67;
+    public static boolean logSampleSide = false;
 
+    LogFile sampleSideLog;
     ComputerVision vision;
     AprilTagPoseFtc[] aprilTagTranslations = new AprilTagPoseFtc[11];
     //InputHandler inputHandler;
@@ -82,6 +85,9 @@ public final class SampleAuto extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        if (logSampleSide) { sampleSideLog = new LogFile("sample", "csv" ); }
+        if (logSampleSide) { sampleSideLog.logTitles(); }
 
         DcMotor slide = hardwareMap.dcMotor.get("slide");
         DcMotor arm = hardwareMap.dcMotor.get("arm");
@@ -172,10 +178,13 @@ public final class SampleAuto extends LinearOpMode {
 
                 if (i == 1){
                     thisPose = farSpikePose;
+                    if (logSampleSide) { sampleSideLog.logSample( true, "Far Spike", thisPose ); }
                 } else if (i == 2){
                     thisPose = middleSpikePose;
+                    if (logSampleSide) { sampleSideLog.logSample( true, "Middle Spike", thisPose ); }
                 } else if (i == 3){
                     thisPose = closeSpikePose;
+                    if (logSampleSide) { sampleSideLog.logSample( true, "Close Spike", thisPose ); }
                     MecanumDrive.errorTolerance = 100;
                 }
 
@@ -200,6 +209,9 @@ public final class SampleAuto extends LinearOpMode {
                         )
                 );
                 lastPose = thisPose;
+                if (logSampleSide) { sampleSideLog.log( " " ); } // Add a blank line
+                if (logSampleSide) { sampleSideLog.logSample( false, "", drive.pose ); }
+
                 MecanumDrive.errorTolerance = 1.5;
                 arm.setTargetPosition(armPickupPosition);
                 while(arm.getCurrentPosition() > (armPickupPosition+100)){
@@ -213,6 +225,7 @@ public final class SampleAuto extends LinearOpMode {
             deliverPose = new Pose2d(poseDeliverX, poseDeliverY, poseDeliverHeading);
 
             thisPose = deliverPose;
+            if (logSampleSide) { sampleSideLog.logSample( true, "Deliver", thisPose ); }
             arm.setTargetPosition(armHighBucketPosition);
             wrist.setPosition(wristStraightUp);
             slide.setTargetPosition(slideHighBucketPosition);
@@ -228,6 +241,7 @@ public final class SampleAuto extends LinearOpMode {
                             //.strafeTo(poseFive.toPose2d().position)
                             .build());
             lastPose = thisPose;
+            if (logSampleSide) { sampleSideLog.logSample( false, "", drive.pose ); }
             while(slide.getCurrentPosition() < (slideHighBucketPosition-100)){
                 sleep(10);
             }
@@ -243,6 +257,8 @@ public final class SampleAuto extends LinearOpMode {
         sleep(100);
         wrist.setPosition(0.95);
         Pose2d parkPose = new Pose2d (parkPoseX,parkPoseY, Math.toRadians(0));
+        if (logSampleSide) { sampleSideLog.log( " " ); } // Add a blank line
+        if (logSampleSide) { sampleSideLog.logSample( true, "Park", parkPose ); }
         Actions.runBlocking(
                 drive.actionBuilder(lastPose)
                         .splineTo(parkPose.position, parkPose.heading, curveVelConstraint, baseAccelConstraint)
