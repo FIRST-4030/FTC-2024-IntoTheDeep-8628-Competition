@@ -11,12 +11,16 @@ import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.LogFile;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.TankDrive;
 
 import java.util.Arrays;
 
 public final class SplineTest extends LinearOpMode {
+    public static boolean logDetails = false;
+
+    LogFile detailsLog;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -40,7 +44,7 @@ public final class SplineTest extends LinearOpMode {
         AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(-20.0, 50.0);
 
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {
-            MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
+            MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose, detailsLog, logDetails );
 
             waitForStart();
 //          57.74, 55.91), Math.toRadians(44.44)

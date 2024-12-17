@@ -15,7 +15,6 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -25,6 +24,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.ComputerVision;
+import org.firstinspires.ftc.teamcode.LogFile;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Pose2dWrapper;
 import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
@@ -32,35 +32,37 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
 import java.util.Arrays;
 
 @Config
-@Disabled
-@Autonomous(name = "OldSpecimenAuto", group="8628")
+@Autonomous(name = "SpecimenAuto", group="8628")
 public final class SpecimenAuto extends LinearOpMode {
 
     public static double startX = 8;
     public static double startY = -62;
     public static double startHeading = -90;
 
-    public static double highChamberDeliverWrist = 0.913;
-    public static int highChamberDeliverArm = 4102;
+    public static double highChamberDeliverWrist = 0.92;
+    public static int highChamberDeliverArm = 4450;
     public static int highChamberDeliverSlide = 1300;
-    public static double highChamberPrepWrist = 0.913;
-    public static int highChamberPrepArm = 4102;
-    public static int highChamberPrepSlide = 500;
-    public static double highChamberX = 0.0;
-    public static double highChamberY = -37;
+    public static double highChamberPrepWrist = 0.92;
+    public static int highChamberPrepArm = 4450;
+    public static int highChamberPrepSlide = 720;
+    public static int highChamberArmTolerance = 50;
+    public static double highChamberX = -2.0;
+    public static double highChamberY = -38;
     public static double highChamberHeading = -90;
     public static int pickupArmPosition = 10;
     public static int pickupSlidePrepPosition = 10;
     public static int pickupSlidePosition = 378;
     public static double pickupWristPosition = 0.7437;
-    public static double pickupXPosition = 40.0;
+    public static double pickupXPosition = 37.0;
     public static double pickupYPosition = -54.0;
     public static double pickupHeading = -90;
-    double clawOpen = 0.25;
-    public static double clawClosed = 0.89;
+    double clawOpen = 0.04;
+    public static double clawClosed = 0.88;
+    public static double clawLoose = 0.49;
     public static double accelMin = -20;
     public static double accelMax = 50;
     public static double fastAccelMin = -50;
+    public static double fastAccelMax = 100;
     public static double cp0tan = 0;
     public static double cp1x = 32;
     public static double cp1y = -38;
@@ -71,9 +73,14 @@ public final class SpecimenAuto extends LinearOpMode {
     public static double firstSpikeX = 47;
     public static double firstSpikeY = -14;
     public static double firstSpikeTan = 0;
-    public static double parkX = 50;
+    public static double parkX = 55;
     public static double parkY = -58;
-    public static double parkHeading = 0;
+    public static double parkHeading = -20;
+    public static boolean logSpecimenSide = false ;
+    public static boolean logDetails = false;
+
+    LogFile specimenSideLog;
+    LogFile detailsLog;
 
     ComputerVision vision;
     AprilTagPoseFtc[] aprilTagTranslations = new AprilTagPoseFtc[11];
@@ -86,10 +93,17 @@ public final class SpecimenAuto extends LinearOpMode {
     ElapsedTime inputTimer = new ElapsedTime();
     int startDelay = 0;
     int i = 1; //used as an iterator for outputLog()
+    int detailsFilter = 1;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        MecanumDrive.errorTolerance = 100;
+
+        if (logSpecimenSide) { specimenSideLog = new LogFile("specimen", "csv" ); }
+        if (logSpecimenSide) { specimenSideLog.logSampleTitles(); }
+
+        if (logDetails) { detailsLog = new LogFile("details", "csv" ); }
+        if (logDetails) { detailsLog.logDetailsTitles(); }
+
         DcMotor slide = hardwareMap.dcMotor.get("slide");
         DcMotor arm = hardwareMap.dcMotor.get("arm");
         Servo claw = hardwareMap.servo.get("claw");
@@ -139,7 +153,10 @@ public final class SpecimenAuto extends LinearOpMode {
         while (vision.visionPortal.getCameraState() == OPENING_CAMERA_DEVICE) {}
 
         vision.setActiveCameraOne(); */
-
+        VelConstraint fastVelConstraint = new MinVelConstraint(Arrays.asList(
+                new TranslationalVelConstraint(60.0),
+                new AngularVelConstraint(Math.PI / 2)
+        ));
         VelConstraint baseVelConstraint = new MinVelConstraint(Arrays.asList(
                 new TranslationalVelConstraint(40.0),
                 new AngularVelConstraint(Math.PI / 2)
@@ -149,14 +166,14 @@ public final class SpecimenAuto extends LinearOpMode {
                 new AngularVelConstraint(Math.PI / 2)
         ));
         AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(accelMin, accelMax);
-        AccelConstraint fastAccelConstraint = new ProfileAccelConstraint(fastAccelMin, accelMax);
+        AccelConstraint fastAccelConstraint = new ProfileAccelConstraint(fastAccelMin, fastAccelMax);
 
 
         Pose2dWrapper startPose = new Pose2dWrapper(startX, startY, Math.toRadians(startHeading));
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, startPose.toPose2d());
+        MecanumDrive drive = new MecanumDrive(hardwareMap, startPose.toPose2d(), detailsLog, logDetails);
 
-         InitializeArmAndSlide.initializeArmAndSlide(telemetry, claw, wrist, slide, arm, slideTouchSensor, armTouchSensor);
+        InitializeArmAndSlide.initializeArmAndSlide(telemetry, claw, wrist, slide, arm, slideTouchSensor, armTouchSensor);
 
         waitForStart();
 //                        .splineToConstantHeading(new Vector2d(-33.0, 30.00), Math.toRadians(-90.0), baseVelConstraint,baseAccelConstraint)
@@ -182,10 +199,13 @@ public final class SpecimenAuto extends LinearOpMode {
                         )
                 )
         );
-        while(Math.abs(arm.getCurrentPosition() - highChamberPrepArm) > 10){
+        double currentTime = runtime.milliseconds();
+        while(Math.abs(arm.getCurrentPosition() - highChamberPrepArm) > highChamberArmTolerance && runtime.milliseconds()-currentTime < 500){
             sleep(10);
         }
         lastPose = thisPose;
+        if (logSpecimenSide) { specimenSideLog.logSample( true, "High chamber "+i, highChamberDeliverPose ); }
+        if (logDetails) { detailsLog.log( detailsFilter + "," + "High chamber"+i ); }
 //        sleep(100);
         slide.setTargetPosition(highChamberDeliverSlide);
         arm.setTargetPosition(highChamberDeliverArm);
@@ -198,15 +218,22 @@ public final class SpecimenAuto extends LinearOpMode {
         sleep(100);
         arm.setTargetPosition(10);
         slide.setTargetPosition(10);
+        lastPose = (new Pose2d(lastPose.position.x,lastPose.position.y-2,lastPose.heading.toDouble()));
         Actions.runBlocking(
                 drive.actionBuilder(lastPose)
                         .setTangent(cp0tan)
                         .splineToConstantHeading(new Vector2d(cp1x, cp1y), Math.toRadians(cp1tan), baseVelConstraint,baseAccelConstraint)
                         .splineToConstantHeading(new Vector2d(cp2x, cp2y), Math.toRadians(cp2tan), baseVelConstraint,baseAccelConstraint)
                         .splineToConstantHeading(new Vector2d(firstSpikeX, firstSpikeY), Math.toRadians(firstSpikeTan), baseVelConstraint,baseAccelConstraint)
-                        .strafeToConstantHeading(new Vector2d(firstSpikeX, -50.0), baseVelConstraint,fastAccelConstraint)
-                        .strafeToConstantHeading(new Vector2d(50.0, -15.0), baseVelConstraint,fastAccelConstraint)
+
+                        .strafeToConstantHeading(new Vector2d(firstSpikeX, -50.0), fastVelConstraint,fastAccelConstraint)
+//                        .splineToConstantHeading(new Vector2d(firstSpikeX, -50.0),Math.toRadians(-90), baseVelConstraint,fastAccelConstraint)
+//                        .setTangent(Math.toRadians(90))
+                        .strafeToConstantHeading(new Vector2d(50.0, -15.0), fastVelConstraint,fastAccelConstraint)
                         .strafeToConstantHeading(new Vector2d(57.0, -15.0), baseVelConstraint,baseAccelConstraint)
+//                        .setTangent(Math.toRadians(90))
+//                        .splineToConstantHeading(new Vector2d(50.0, -16.0), Math.toRadians(10), baseVelConstraint,fastAccelConstraint)
+//                        .strafeToConstantHeading(new Vector2d(57.0, -15.0), baseVelConstraint,baseAccelConstraint)
                         .build());
         lastPose = new Pose2d(57.0, -15.0, Math.toRadians(-90.0));
         claw.setPosition(clawOpen);
@@ -214,7 +241,7 @@ public final class SpecimenAuto extends LinearOpMode {
         slide.setTargetPosition(pickupSlidePosition);
         Actions.runBlocking(
                 drive.actionBuilder(lastPose)
-                        .strafeToConstantHeading(new Vector2d(57.0, -55.0), baseVelConstraint,fastAccelConstraint)
+                        .strafeToConstantHeading(new Vector2d(57.0, -55.0), fastVelConstraint,fastAccelConstraint)
 //                .splineToConstantHeading(new Vector2d(35.0, highChamberY), Math.toRadians(90.0), baseVelConstraint,baseAccelConstraint)
 //                .splineToConstantHeading(new Vector2d(40.0, -14.00), Math.toRadians(130.0), baseVelConstraint,baseAccelConstraint)
 //                .splineToConstantHeading(new Vector2d(45.0, -10.0), Math.toRadians(-180.0), curveVelConstraint,baseAccelConstraint)
@@ -264,38 +291,58 @@ public final class SpecimenAuto extends LinearOpMode {
 
             thisPose = new Pose2d (highChamberX + 2*(i+2), highChamberY, Math.toRadians(highChamberHeading));
             driveAction = drive.actionBuilder(lastPose)
-                    .setTangent(Math.toRadians(170))
-                    .splineToLinearHeading(thisPose, Math.toRadians(90), baseVelConstraint, baseAccelConstraint)
+                    .setTangent(Math.toRadians(160))
+                    .splineToLinearHeading(thisPose, Math.toRadians(110), baseVelConstraint, baseAccelConstraint)
                     .build();
             arm.setTargetPosition(highChamberPrepArm);
             Actions.runBlocking(
                     new ParallelAction(
                             driveAction,
                             new SequentialAction(
-                                    new SleepAction(1.0),
+                                    new SleepAction(0.5),
                                     (telemetryPacket) -> {
                                         wrist.setPosition(highChamberPrepWrist);
                                         slide.setTargetPosition(highChamberPrepSlide);
+                                        return false;
+                                    },
+                                    (telemetryPacket) -> {
+                                        if (highChamberPrepArm-arm.getCurrentPosition() < 1500){
+                                            claw.setPosition(clawLoose);
+                                            return false;
+                                        } else {
+                                            return true;
+                                        }
+                                    },
+                                    new SleepAction(0.25),
+                                    (telemetryPacket) -> {
+                                        claw.setPosition(clawClosed);
                                         return false;
                                     }
                             )
                     )
             );
             lastPose = thisPose;
+            if (logSpecimenSide) { specimenSideLog.logSample( true, "High chamber", highChamberDeliverPose ); }
+            if (logDetails) { detailsLog.log( detailsFilter + "," + "High chamber" ); }
+            currentTime = runtime.milliseconds();
+            while(Math.abs(arm.getCurrentPosition() - highChamberPrepArm) > highChamberArmTolerance && runtime.milliseconds()-currentTime < 500){
+                sleep(10);
+            }
+            telemetry.addData("time waiting for arm " + (i+1) + "delivery", (runtime.milliseconds()-currentTime)/1000.0);
             slide.setTargetPosition(highChamberDeliverSlide);
             arm.setTargetPosition(highChamberDeliverArm);
             wrist.setPosition(highChamberDeliverWrist);
-            while(Math.abs(slide.getCurrentPosition() - highChamberDeliverSlide) > 10){
+            currentTime = runtime.milliseconds();
+            while(Math.abs(slide.getCurrentPosition() - highChamberDeliverSlide) > 20){
                 sleep(10);
             }
+            telemetry.addData("time waiting for slide " + (i+1) + "delivery", (runtime.milliseconds()-currentTime)/1000.0);
             claw.setPosition(clawOpen);
             sleep(100);
-
-
-
         }
+        telemetry.update();
         slide.setTargetPosition(10);
-        arm.setTargetPosition(10);
+        arm.setTargetPosition(200);
         Pose2d parkPose = new Pose2d(parkX,parkY,Math.toRadians(parkHeading));
         Actions.runBlocking(
                 drive.actionBuilder(lastPose)
@@ -381,10 +428,8 @@ public final class SpecimenAuto extends LinearOpMode {
 
         if (isStopRequested()) return;
         telemetry.addData("Started Running", " ");
-        telemetry.update();
         sleep(startDelay);
         outputLog(drive); //1
-
     }
     public void outputLog (MecanumDrive drive){
         RobotLog.d("WAY: Current Robot Pose Estimate and time: X: %.03f Y: %.03f Heading: %.03f ms: %.03f iteration: %d", drive.pose.position.x, drive.pose.position.y, Math.toDegrees(drive.pose.heading.real), runtime.milliseconds(), i);

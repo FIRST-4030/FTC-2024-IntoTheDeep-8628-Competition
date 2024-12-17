@@ -47,7 +47,7 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
         public double hangWristSubmersiblePosition = 0.39 ;
     }
 
-    public static double clawIncrement = 1.0 / 30.0;
+    public static double clawIncrement = 1.0 / 100.0;
     public static double clawMax = 0.88;
     public static double clawMin = 0.04;
     public static double clawOpen = 0.04;

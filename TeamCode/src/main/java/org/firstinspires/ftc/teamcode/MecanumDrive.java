@@ -54,7 +54,10 @@ import java.util.List;
 
 @Config
 public final class MecanumDrive {
-    public static double errorTolerance = 1.5;
+    private final LogFile filePtr;
+    private final boolean writeIt;
+    public static double errorTolerance = 1.0;
+    public static double errorTime = 0.5;
     public static class Params {
         // IMU orientation
         // TODO: fill in these values based on
@@ -211,8 +214,10 @@ public final class MecanumDrive {
         }
     }
 
-    public MecanumDrive(HardwareMap hardwareMap, Pose2d pose) {
+    public MecanumDrive(HardwareMap hardwareMap, Pose2d pose, LogFile filePtr, boolean writeIt) {
         this.pose = pose;
+        this.filePtr = filePtr;
+        this.writeIt = writeIt;
 
         networkName = controlHub.getNetworkName();
 
@@ -317,7 +322,7 @@ public final class MecanumDrive {
 
             Pose2d error = txWorldTarget.value().minusExp(pose);
 
-            if ((t >= timeTrajectory.duration && error.position.norm() < errorTolerance) || t >= (timeTrajectory.duration + 0.5)) {
+            if ((t >= timeTrajectory.duration && error.position.norm() < errorTolerance) || t >= (timeTrajectory.duration + errorTime)) {
                 leftFront.setPower(0);
                 leftBack.setPower(0);
                 rightBack.setPower(0);
@@ -374,6 +379,8 @@ public final class MecanumDrive {
             c.setStroke("#4CAF50FF");
             c.setStrokeWidth(1);
             c.strokePolyline(xPoints, yPoints);
+
+            if (writeIt) { filePtr.logDetails(robotVelRobot, error); }
 
             return true;
         }
@@ -542,7 +549,7 @@ public final class MecanumDrive {
             PARAMS.maxProfileAccel = 50;
 
             PARAMS.axialGain = 10.0;
-            PARAMS.lateralGain = 2.0;
+            PARAMS.lateralGain = 4.0;
             PARAMS.headingGain = 10.0; // shared with turn
 
         } else {

@@ -33,6 +33,9 @@ public final class SplineDemoWithDashboard extends LinearOpMode {
     public static double X1 = -38;
     public static double X2 = -48;
     public static double X3 = -55;
+    public static boolean logDetails = false;
+
+    LogFile detailsLog;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -54,7 +57,7 @@ public final class SplineDemoWithDashboard extends LinearOpMode {
         AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(-20.0, 50.0);
 
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {
-            MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
+            MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose, detailsLog, logDetails );
 
 
 

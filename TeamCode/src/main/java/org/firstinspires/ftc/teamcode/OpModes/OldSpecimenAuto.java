@@ -24,6 +24,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.ComputerVision;
+import org.firstinspires.ftc.teamcode.LogFile;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Pose2dWrapper;
 import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
@@ -31,22 +32,22 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
 import java.util.Arrays;
 
 @Config
-@Autonomous(name = "SpecimenAuto", group="8628")
-public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
+@Autonomous(name = "OldSpecimenAuto", group="8628")
+public final class OldSpecimenAuto extends LinearOpMode {
 
     public static double startX = 8;
     public static double startY = -62;
     public static double startHeading = -90;
 
-    public static double highChamberDeliverWrist = 0.99;
+    public static double highChamberDeliverWrist = 0.92;
     public static int highChamberDeliverArm = 4450;
-    public static int highChamberDeliverSlide = 1400;
-    public static double highChamberPrepWrist = 0.99;
+    public static int highChamberDeliverSlide = 1300;
+    public static double highChamberPrepWrist = 0.92;
     public static int highChamberPrepArm = 4450;
-    public static int highChamberPrepSlide = 897;
+    public static int highChamberPrepSlide = 720;
     public static int highChamberArmTolerance = 50;
-    public static double highChamberX = 0.0;
-    public static double highChamberY = -36;
+    public static double highChamberX = -2.0;
+    public static double highChamberY = -39;
     public static double highChamberHeading = -90;
     public static int pickupArmPosition = 10;
     public static int pickupSlidePrepPosition = 10;
@@ -74,6 +75,11 @@ public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
     public static double parkX = 55;
     public static double parkY = -58;
     public static double parkHeading = -20;
+    public static boolean logSpecimenSide = false ;
+    public static boolean logDetails = false;
+
+    LogFile specimenSideLog;
+    LogFile detailsLog;
 
     ComputerVision vision;
     AprilTagPoseFtc[] aprilTagTranslations = new AprilTagPoseFtc[11];
@@ -86,9 +92,16 @@ public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
     ElapsedTime inputTimer = new ElapsedTime();
     int startDelay = 0;
     int i = 1; //used as an iterator for outputLog()
+    int detailsFilter = 1;
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        if (logSpecimenSide) { specimenSideLog = new LogFile("specimen", "csv" ); }
+        if (logSpecimenSide) { specimenSideLog.logSampleTitles(); }
+
+        if (logDetails) { detailsLog = new LogFile("details", "csv" ); }
+        if (logDetails) { detailsLog.logDetailsTitles(); }
 
         DcMotor slide = hardwareMap.dcMotor.get("slide");
         DcMotor arm = hardwareMap.dcMotor.get("arm");
@@ -154,9 +167,9 @@ public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
 
         Pose2dWrapper startPose = new Pose2dWrapper(startX, startY, Math.toRadians(startHeading));
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, startPose.toPose2d());
+        MecanumDrive drive = new MecanumDrive(hardwareMap, startPose.toPose2d(), detailsLog, logDetails);
 
-         InitializeArmAndSlide.initializeArmAndSlide(telemetry, claw, wrist, slide, arm, slideTouchSensor, armTouchSensor);
+        InitializeArmAndSlide.initializeArmAndSlide(telemetry, claw, wrist, slide, arm, slideTouchSensor, armTouchSensor);
 
         waitForStart();
 //                        .splineToConstantHeading(new Vector2d(-33.0, 30.00), Math.toRadians(-90.0), baseVelConstraint,baseAccelConstraint)
@@ -187,6 +200,8 @@ public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
             sleep(10);
         }
         lastPose = thisPose;
+        if (logSpecimenSide) { specimenSideLog.logSample( true, "High chamber "+i, highChamberDeliverPose ); }
+        if (logDetails) { detailsLog.log( detailsFilter + "," + "High chamber"+i ); }
 //        sleep(100);
         slide.setTargetPosition(highChamberDeliverSlide);
         arm.setTargetPosition(highChamberDeliverArm);
@@ -199,6 +214,7 @@ public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
         sleep(100);
         arm.setTargetPosition(10);
         slide.setTargetPosition(10);
+        lastPose = (new Pose2d(lastPose.position.x,lastPose.position.y-2,lastPose.heading.toDouble()));
         Actions.runBlocking(
                 drive.actionBuilder(lastPose)
                         .setTangent(cp0tan)
@@ -296,6 +312,8 @@ public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
                     )
             );
             lastPose = thisPose;
+            if (logSpecimenSide) { specimenSideLog.logSample( true, "High chamber", highChamberDeliverPose ); }
+            if (logDetails) { detailsLog.log( detailsFilter + "," + "High chamber" ); }
             currentTime = runtime.milliseconds();
             while(Math.abs(arm.getCurrentPosition() - highChamberPrepArm) > highChamberArmTolerance && runtime.milliseconds()-currentTime < 500){
                 sleep(10);
@@ -313,7 +331,7 @@ public final class SpecimenAutoAfterCompetitionTwo extends LinearOpMode {
             sleep(100);
         }
         telemetry.update();
-//        slide.setTargetPosition(10);
+        slide.setTargetPosition(10);
         arm.setTargetPosition(200);
         Pose2d parkPose = new Pose2d(parkX,parkY,Math.toRadians(parkHeading));
         Actions.runBlocking(

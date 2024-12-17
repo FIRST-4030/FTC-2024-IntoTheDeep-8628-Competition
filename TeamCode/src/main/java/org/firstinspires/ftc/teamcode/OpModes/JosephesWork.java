@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.LogFile;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.TankDrive;
 import org.firstinspires.ftc.teamcode.tuning.TuningOpModes;
@@ -23,8 +24,11 @@ import java.util.Arrays;
 
 @Disabled
 public final class JosephesWork extends LinearOpMode {
-    @Override
+    public static boolean logDetails = false;
 
+    LogFile detailsLog;
+
+    @Override
     public void runOpMode() throws InterruptedException {
 
 //        WebcamName webcam1 = hardwareMap.get(WebcamName.class, "Webcam 1");
@@ -50,7 +54,7 @@ public final class JosephesWork extends LinearOpMode {
         AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(-20.0, 50.0);
 
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {
-            MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
+            MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose, detailsLog, logDetails);
 
 
 

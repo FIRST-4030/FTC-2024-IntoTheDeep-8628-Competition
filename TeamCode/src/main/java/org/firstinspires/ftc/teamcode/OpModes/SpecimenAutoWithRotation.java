@@ -25,6 +25,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.ComputerVision;
+import org.firstinspires.ftc.teamcode.LogFile;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Pose2dWrapper;
 import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
@@ -90,7 +91,9 @@ public final class SpecimenAutoWithRotation extends LinearOpMode {
     public static int secondSpikeArm = 440;
     public static int thirdSpikeArm = 440;
     public static double baseVel = 40.0;
+    public static boolean logDetails = false;
 
+    LogFile detailsLog;
 
     ComputerVision vision;
     AprilTagPoseFtc[] aprilTagTranslations = new AprilTagPoseFtc[11];
@@ -171,7 +174,7 @@ public final class SpecimenAutoWithRotation extends LinearOpMode {
 
         Pose2dWrapper startPose = new Pose2dWrapper(startX, startY, Math.toRadians(startHeading));
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, startPose.toPose2d());
+        MecanumDrive drive = new MecanumDrive(hardwareMap, startPose.toPose2d(), detailsLog, logDetails );
 
          InitializeArmAndSlide.initializeArmAndSlide(telemetry, claw, wrist, slide, arm, slideTouchSensor, armTouchSensor);
 

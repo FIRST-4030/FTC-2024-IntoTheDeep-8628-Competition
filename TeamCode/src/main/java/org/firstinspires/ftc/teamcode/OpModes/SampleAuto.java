@@ -68,9 +68,12 @@ public final class SampleAuto extends LinearOpMode {
     public static int parkArm = 1900;
     public static int parkSlide = 1690;
     public static double maxRotationSpeed = 67;
-    public static boolean logSampleSide = false;
+    public static boolean logSampleSide = true;
+    public static boolean logDetails = true;
 
     LogFile sampleSideLog;
+    LogFile detailsLog;
+    int detailsFilter = 1;
     ComputerVision vision;
     AprilTagPoseFtc[] aprilTagTranslations = new AprilTagPoseFtc[11];
     //InputHandler inputHandler;
@@ -87,7 +90,10 @@ public final class SampleAuto extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         if (logSampleSide) { sampleSideLog = new LogFile("sample", "csv" ); }
-        if (logSampleSide) { sampleSideLog.logTitles(); }
+        if (logSampleSide) { sampleSideLog.logSampleTitles(); }
+
+        if (logDetails) { detailsLog = new LogFile("details", "csv" ); }
+        if (logDetails) { detailsLog.logDetailsTitles(); }
 
         DcMotor slide = hardwareMap.dcMotor.get("slide");
         DcMotor arm = hardwareMap.dcMotor.get("arm");
@@ -155,7 +161,7 @@ public final class SampleAuto extends LinearOpMode {
 
         Pose2dWrapper startPose = new Pose2dWrapper(0, 0, Math.toRadians(90));
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, startPose.toPose2d());
+        MecanumDrive drive = new MecanumDrive(hardwareMap, startPose.toPose2d(), detailsLog, logDetails);
 
         InitializeArmAndSlide.initializeArmAndSlide(telemetry, claw, wrist, slide, arm, slideTouchSensor, armTouchSensor);
 
@@ -178,13 +184,16 @@ public final class SampleAuto extends LinearOpMode {
 
                 if (i == 1){
                     thisPose = farSpikePose;
-                    if (logSampleSide) { sampleSideLog.logSample( true, "Far Spike", thisPose ); }
+                    if (logSampleSide) { sampleSideLog.logSample( true, "Far Spike", farSpikePose ); }
+                    if (logDetails) { detailsLog.log( detailsFilter + "," + "Start Far Spike" ); }
                 } else if (i == 2){
                     thisPose = middleSpikePose;
-                    if (logSampleSide) { sampleSideLog.logSample( true, "Middle Spike", thisPose ); }
+                    if (logSampleSide) { sampleSideLog.logSample( true, "Middle Spike", middleSpikePose ); }
+                    if (logDetails) { detailsLog.log( detailsFilter + "," + "Start Middle Spike" ); }
                 } else if (i == 3){
                     thisPose = closeSpikePose;
-                    if (logSampleSide) { sampleSideLog.logSample( true, "Close Spike", thisPose ); }
+                    if (logSampleSide) { sampleSideLog.logSample( true, "Close Spike", closeSpikePose ); }
+                    if (logDetails) { detailsLog.log( detailsFilter + "," + "Start Close Spike" ); }
                     MecanumDrive.errorTolerance = 100;
                 }
 
@@ -193,6 +202,7 @@ public final class SampleAuto extends LinearOpMode {
                         sleep(10);
                     }
                 }
+                if (logDetails) { detailsLog.log( detailsFilter + "," + "Start Drive to End" ); }
                 Action driveAction = drive.actionBuilder(lastPose)
                         .strafeToLinearHeading(thisPose.position, thisPose.heading, baseVelConstraint, baseAccelConstraint)
                         .build();
@@ -208,6 +218,7 @@ public final class SampleAuto extends LinearOpMode {
                                 )
                         )
                 );
+                if (logDetails) { detailsLog.log( detailsFilter + "," + "End Drive to End" ); }
                 lastPose = thisPose;
                 if (logSampleSide) { sampleSideLog.log( " " ); } // Add a blank line
                 if (logSampleSide) { sampleSideLog.logSample( false, "", drive.pose ); }
@@ -225,7 +236,8 @@ public final class SampleAuto extends LinearOpMode {
             deliverPose = new Pose2d(poseDeliverX, poseDeliverY, poseDeliverHeading);
 
             thisPose = deliverPose;
-            if (logSampleSide) { sampleSideLog.logSample( true, "Deliver", thisPose ); }
+            if (logSampleSide) { sampleSideLog.logSample( true, "Deliver", deliverPose ); }
+            if (logDetails) { detailsLog.log( detailsFilter + "," + "Start Deliver Sample" ); }
             arm.setTargetPosition(armHighBucketPosition);
             wrist.setPosition(wristStraightUp);
             slide.setTargetPosition(slideHighBucketPosition);
@@ -240,11 +252,14 @@ public final class SampleAuto extends LinearOpMode {
                             //.strafeTo(poseFour.toPose2d().position)
                             //.strafeTo(poseFive.toPose2d().position)
                             .build());
+            if (logDetails) { detailsLog.log( detailsFilter + "," + "End Deliver Sample" ); }
             lastPose = thisPose;
             if (logSampleSide) { sampleSideLog.logSample( false, "", drive.pose ); }
+            if (logDetails) { detailsLog.log( detailsFilter + "," + "Start Slide to Bucket Position" ); }
             while(slide.getCurrentPosition() < (slideHighBucketPosition-100)){
                 sleep(10);
             }
+            if (logDetails) { detailsLog.log( detailsFilter + "," + "End Slide to Bucket Position" ); }
             wrist.setPosition(wristDeliverPos);
             sleep(sleepAfterWristDeliver);
             claw.setPosition(clawOpen);
@@ -259,11 +274,13 @@ public final class SampleAuto extends LinearOpMode {
         Pose2d parkPose = new Pose2d (parkPoseX,parkPoseY, Math.toRadians(0));
         if (logSampleSide) { sampleSideLog.log( " " ); } // Add a blank line
         if (logSampleSide) { sampleSideLog.logSample( true, "Park", parkPose ); }
+        if (logDetails) { detailsLog.log( detailsFilter + "," + "Start Park" ); }
         Actions.runBlocking(
                 drive.actionBuilder(lastPose)
                         .splineTo(parkPose.position, parkPose.heading, curveVelConstraint, baseAccelConstraint)
                         .build());
         lastPose = parkPose;
+        if (logDetails) { detailsLog.log( detailsFilter + "," + "End Park" ); }
 
         // --------------------------------------
 
