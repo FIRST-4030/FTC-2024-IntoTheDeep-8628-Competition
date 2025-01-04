@@ -17,7 +17,7 @@ public class InitializeArmAndSlide {
         slide.setPower(-0.7);
         arm.setPower(0.0);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        wrist.setPosition(0.99);
+        wrist.setPosition(0.9);
         claw.setPosition(1.0);
         while (true){
             if (slideTouchSensor.isPressed()){
