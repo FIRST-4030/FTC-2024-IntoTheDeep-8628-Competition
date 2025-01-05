@@ -14,7 +14,7 @@ public final class ManualFeedbackTuner extends LinearOpMode {
     public static double DISTANCE = 64;
     public static boolean logDetails = false;
 
-    LogFile detailsLog;
+    public static LogFile detailsLog;
 
     @Override
     public void runOpMode() throws InterruptedException {

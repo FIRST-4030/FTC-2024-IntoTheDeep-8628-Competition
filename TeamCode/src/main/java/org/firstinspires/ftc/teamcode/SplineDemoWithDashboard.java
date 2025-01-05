@@ -39,6 +39,12 @@ public final class SplineDemoWithDashboard extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        if (logDetails) {
+            detailsLog = new LogFile("details", "csv" );
+            detailsLog.logDetailsTitles();
+        }
+
         Pose2d beginPose = new Pose2d(INITIAL_X, INITIAL_Y, Math.toRadians(-90.00));
 //        VelConstraint baseVelConstraint = new MinVelConstraint(Arrays.asList(
 //                new TranslationalVelConstraint(100.0),
@@ -57,10 +63,7 @@ public final class SplineDemoWithDashboard extends LinearOpMode {
         AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(-20.0, 50.0);
 
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {
-            MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose, detailsLog, logDetails );
-
-
-
+            MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose, detailsLog, logDetails);
 
             waitForStart();
 //          57.74, 55.91), Math.toRadians(44.44)

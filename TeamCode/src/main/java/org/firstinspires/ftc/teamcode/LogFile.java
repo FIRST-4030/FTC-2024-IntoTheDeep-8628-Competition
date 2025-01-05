@@ -115,7 +115,7 @@ public class LogFile {
      *
      * Feel free to remove/alter any of them for a new season
      */
-    public void logSampleTitles() {
+    public void logActionTitles() {
         String message = ",Delta,Start,Start,Start,End,End,End,Delta,Delta,Delta";
         log( message );
         message = ",Time,Heading,X,Y,Heading,X,Y,Heading,X,Y";
@@ -124,36 +124,40 @@ public class LogFile {
 
     /**
      *
-     * @param isStart - boolean value used to capture the start of a sample
+     * @param pose - x & y position of the robot
      * @param label - text string used to describe the sample
+     */
+    public void logAction( Pose2d pose, String label ) {
+
+        this.label   = label;
+        startTime    = System.currentTimeMillis();
+        startHeading = Math.toDegrees(pose.heading.toDouble());
+        startPoseX   = pose.position.x;
+        startPoseY   = pose.position.y;
+    }
+
+    /**
+     *
      * @param pose - x & y position of the robot
      */
-    public void logSample( boolean isStart, String label, Pose2d pose ) {
+    public void logAction( Pose2d pose ) {
 
-        if (isStart) {
-            this.label   = label;
-            startTime    = System.currentTimeMillis();
-            startHeading = Math.toDegrees(pose.heading.toDouble());
-            startPoseX   = pose.position.x;
-            startPoseY   = pose.position.y;
-        } else {
-            deltaTime  = System.currentTimeMillis() - startTime;
-            double endHeading = Math.toDegrees(pose.heading.toDouble());
-            double endPoseX   = pose.position.x;
-            double endPoseY   = pose.position.y;
+        deltaTime  = System.currentTimeMillis() - startTime;
+        double endHeading = Math.toDegrees(pose.heading.toDouble());
+        double endPoseX   = pose.position.x;
+        double endPoseY   = pose.position.y;
 
-            String message = this.label + "," +
-                    String.format(Locale.US, "%.2f", (double) deltaTime / 1000.01) + "," +
-                    String.format(Locale.US, "%.2f", startHeading) + "," +
-                    String.format(Locale.US, "%.2f", startPoseX) + "," +
-                    String.format(Locale.US, "%.2f", startPoseY) + "," +
-                    String.format(Locale.US, "%.2f", endHeading) + "," +
-                    String.format(Locale.US, "%.2f", endPoseX) + "," +
-                    String.format(Locale.US, "%.2f", endPoseY) + "," +
-                    String.format(Locale.US, "%.2f", startHeading - endHeading) + "," +
-                    String.format(Locale.US, "%.2f", startPoseX - endPoseX) + "," +
-                    String.format(Locale.US, "%.2f", startPoseY - endPoseY);
-            log( message );
-        }
+        String message = this.label + "," +
+                String.format(Locale.US, "%.2f", (double) deltaTime / 1000.01) + "," +
+                String.format(Locale.US, "%.2f", startHeading) + "," +
+                String.format(Locale.US, "%.2f", startPoseX) + "," +
+                String.format(Locale.US, "%.2f", startPoseY) + "," +
+                String.format(Locale.US, "%.2f", endHeading) + "," +
+                String.format(Locale.US, "%.2f", endPoseX) + "," +
+                String.format(Locale.US, "%.2f", endPoseY) + "," +
+                String.format(Locale.US, "%.2f", startHeading - endHeading) + "," +
+                String.format(Locale.US, "%.2f", startPoseX - endPoseX) + "," +
+                String.format(Locale.US, "%.2f", startPoseY - endPoseY);
+        log( message );
     }
 }

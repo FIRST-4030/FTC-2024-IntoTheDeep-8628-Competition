@@ -98,11 +98,15 @@ public final class SpecimenAuto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        if (logSpecimenSide) { specimenSideLog = new LogFile("specimen", "csv" ); }
-        if (logSpecimenSide) { specimenSideLog.logSampleTitles(); }
+        if (logSpecimenSide) {
+            specimenSideLog = new LogFile("specimen", "csv" );
+            specimenSideLog.logActionTitles();
+        }
 
-        if (logDetails) { detailsLog = new LogFile("details", "csv" ); }
-        if (logDetails) { detailsLog.logDetailsTitles(); }
+        if (logDetails) {
+            detailsLog = new LogFile("details", "csv" );
+            detailsLog.logDetailsTitles();
+        }
 
         DcMotor slide = hardwareMap.dcMotor.get("slide");
         DcMotor arm = hardwareMap.dcMotor.get("arm");
@@ -204,7 +208,7 @@ public final class SpecimenAuto extends LinearOpMode {
             sleep(10);
         }
         lastPose = thisPose;
-        if (logSpecimenSide) { specimenSideLog.logSample( true, "High chamber "+i, highChamberDeliverPose ); }
+        if (logSpecimenSide) { specimenSideLog.logAction( highChamberDeliverPose, "High chamber "+i ); }
         if (logDetails) { detailsLog.log( detailsFilter + "," + "High chamber"+i ); }
 //        sleep(100);
         slide.setTargetPosition(highChamberDeliverSlide);
@@ -322,7 +326,7 @@ public final class SpecimenAuto extends LinearOpMode {
                     )
             );
             lastPose = thisPose;
-            if (logSpecimenSide) { specimenSideLog.logSample( true, "High chamber", highChamberDeliverPose ); }
+            if (logSpecimenSide) { specimenSideLog.logAction( highChamberDeliverPose, "High chamber" ); }
             if (logDetails) { detailsLog.log( detailsFilter + "," + "High chamber" ); }
             currentTime = runtime.milliseconds();
             while(Math.abs(arm.getCurrentPosition() - highChamberPrepArm) > highChamberArmTolerance && runtime.milliseconds()-currentTime < 500){

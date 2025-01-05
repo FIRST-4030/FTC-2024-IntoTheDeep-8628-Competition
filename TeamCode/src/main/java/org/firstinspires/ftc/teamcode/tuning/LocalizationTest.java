@@ -21,8 +21,15 @@ public class LocalizationTest extends LinearOpMode {
     public static boolean logDetails = false;
 
     LogFile detailsLog;
+
     @Override
     public void runOpMode() throws InterruptedException {
+
+        if (logDetails) {
+            detailsLog = new LogFile("details", "csv" );
+            detailsLog.logDetailsTitles();
+        }
+
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {

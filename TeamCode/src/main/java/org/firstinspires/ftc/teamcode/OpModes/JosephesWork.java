@@ -12,13 +12,10 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.LogFile;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.TankDrive;
 import org.firstinspires.ftc.teamcode.tuning.TuningOpModes;
-import org.firstinspires.ftc.teamcode.tuning.AprilTagLocalization;
 
 import java.util.Arrays;
 
@@ -30,6 +27,11 @@ public final class JosephesWork extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        if (logDetails) {
+            detailsLog = new LogFile("details", "csv" );
+            detailsLog.logDetailsTitles();
+        }
 
 //        WebcamName webcam1 = hardwareMap.get(WebcamName.class, "Webcam 1");
 ////        Position cameraPosition =
