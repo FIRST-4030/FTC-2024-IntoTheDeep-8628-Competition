@@ -39,32 +39,32 @@ public final class SpecimenAuto extends LinearOpMode {
     public static double startY = -62;
     public static double startHeading = -90;
 
-    public static double highChamberDeliverWrist = 0.92;
-    public static int highChamberDeliverArm = 4450;
-    public static int highChamberDeliverSlide = 1300;
-    public static double highChamberPrepWrist = 0.92;
-    public static int highChamberPrepArm = 4450;
-    public static int highChamberPrepSlide = 720;
+    public static double highChamberDeliverWrist = 0.6467;
+    public static int highChamberDeliverArm = 4336;
+    public static int highChamberDeliverSlide = 993;
+    public static double highChamberPrepWrist = 0.6467;
+    public static int highChamberPrepArm = 4336;
+    public static int highChamberPrepSlide = 324;
     public static int highChamberArmTolerance = 50;
     public static double highChamberX = -2.0;
-    public static double highChamberY = -38;
+    public static double highChamberY = -40;
     public static double highChamberHeading = -90;
-    public static int pickupArmPosition = 10;
+    public static int pickupArmPosition = 552;
     public static int pickupSlidePrepPosition = 10;
-    public static int pickupSlidePosition = 378;
-    public static double pickupWristPosition = 0.7437;
+    public static int pickupSlidePosition = 365;
+    public static double pickupWristPosition = 0.41;
     public static double pickupXPosition = 37.0;
-    public static double pickupYPosition = -54.0;
+    public static double pickupYPosition = -51.0;
     public static double pickupHeading = -90;
     double clawOpen = 0.04;
     public static double clawClosed = 0.88;
-    public static double clawLoose = 0.49;
+    public static double clawLoose = 0.6;
     public static double accelMin = -20;
     public static double accelMax = 50;
     public static double fastAccelMin = -50;
     public static double fastAccelMax = 100;
     public static double cp0tan = 0;
-    public static double cp1x = 32;
+    public static double cp1x = 28;
     public static double cp1y = -38;
     public static double cp1tan = 0;
     public static double cp2x = 42;
@@ -73,9 +73,9 @@ public final class SpecimenAuto extends LinearOpMode {
     public static double firstSpikeX = 47;
     public static double firstSpikeY = -14;
     public static double firstSpikeTan = 0;
-    public static double parkX = 55;
-    public static double parkY = -58;
-    public static double parkHeading = -20;
+    public static double parkX = 48;
+    public static double parkY = -62;
+    public static double parkHeading = 0;
     public static boolean logSpecimenSide = false ;
     public static boolean logDetails = false;
 
@@ -112,6 +112,7 @@ public final class SpecimenAuto extends LinearOpMode {
         DcMotor arm = hardwareMap.dcMotor.get("arm");
         Servo claw = hardwareMap.servo.get("claw");
         Servo wrist = hardwareMap.servo.get("wrist");
+        Servo wristRotation = hardwareMap.servo.get("wristRotation");
         TouchSensor armTouchSensor = hardwareMap.get(TouchSensor.class, "armTouchSensor");
         TouchSensor slideTouchSensor = hardwareMap.get(TouchSensor.class, "slideTouchSensor");
 
@@ -177,7 +178,7 @@ public final class SpecimenAuto extends LinearOpMode {
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose.toPose2d(), detailsLog, logDetails);
 
-        InitializeArmAndSlide.initializeArmAndSlide(telemetry, claw, wrist, slide, arm, slideTouchSensor, armTouchSensor);
+        InitializeArmAndSlide.initializeArmAndSlide(telemetry, wristRotation, claw, wrist, slide, arm, slideTouchSensor, armTouchSensor);
 
         waitForStart();
 //                        .splineToConstantHeading(new Vector2d(-33.0, 30.00), Math.toRadians(-90.0), baseVelConstraint,baseAccelConstraint)
@@ -220,7 +221,7 @@ public final class SpecimenAuto extends LinearOpMode {
 //        sleep(500);
         claw.setPosition(clawOpen);
         sleep(100);
-        arm.setTargetPosition(10);
+        arm.setTargetPosition(pickupArmPosition);
         slide.setTargetPosition(10);
         lastPose = (new Pose2d(lastPose.position.x,lastPose.position.y-2,lastPose.heading.toDouble()));
         Actions.runBlocking(
@@ -245,7 +246,7 @@ public final class SpecimenAuto extends LinearOpMode {
         slide.setTargetPosition(pickupSlidePosition);
         Actions.runBlocking(
                 drive.actionBuilder(lastPose)
-                        .strafeToConstantHeading(new Vector2d(57.0, -55.0), fastVelConstraint,fastAccelConstraint)
+                        .strafeToConstantHeading(new Vector2d(57.0, pickupYPosition), fastVelConstraint,fastAccelConstraint)
 //                .splineToConstantHeading(new Vector2d(35.0, highChamberY), Math.toRadians(90.0), baseVelConstraint,baseAccelConstraint)
 //                .splineToConstantHeading(new Vector2d(40.0, -14.00), Math.toRadians(130.0), baseVelConstraint,baseAccelConstraint)
 //                .splineToConstantHeading(new Vector2d(45.0, -10.0), Math.toRadians(-180.0), curveVelConstraint,baseAccelConstraint)
@@ -257,7 +258,7 @@ public final class SpecimenAuto extends LinearOpMode {
 //                .splineToConstantHeading(new Vector2d(54.0, -14.0), Math.toRadians(-135.0), curveVelConstraint,baseAccelConstraint)
 //                .splineToConstantHeading(new Vector2d(57.0, -58.0), Math.toRadians(-90.0), baseVelConstraint,baseAccelConstraint)
                         .build());
-        lastPose = new Pose2d(57.0, -55.0, Math.toRadians(-90.0));
+        lastPose = new Pose2d(57.0, pickupYPosition, Math.toRadians(-90.0));
 
 
         for (int i = 0; i < 3; i++){
@@ -289,7 +290,7 @@ public final class SpecimenAuto extends LinearOpMode {
                 sleep(10);
             }
             claw.setPosition(clawClosed);
-            sleep(200);
+            sleep(300);
 
 
 
@@ -345,6 +346,7 @@ public final class SpecimenAuto extends LinearOpMode {
             sleep(100);
         }
         telemetry.update();
+        wrist.setPosition(pickupWristPosition);
         slide.setTargetPosition(10);
         arm.setTargetPosition(200);
         Pose2d parkPose = new Pose2d(parkX,parkY,Math.toRadians(parkHeading));

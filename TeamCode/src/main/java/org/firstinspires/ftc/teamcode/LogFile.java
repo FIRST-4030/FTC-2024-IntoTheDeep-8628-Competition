@@ -110,11 +110,6 @@ public class LogFile {
         log( message );
     }
 
-    /*
-     * All methods below this line are specific to the current year's competition
-     *
-     * Feel free to remove/alter any of them for a new season
-     */
     public void logActionTitles() {
         String message = ",Delta,Start,Start,Start,End,End,End,Delta,Delta,Delta";
         log( message );

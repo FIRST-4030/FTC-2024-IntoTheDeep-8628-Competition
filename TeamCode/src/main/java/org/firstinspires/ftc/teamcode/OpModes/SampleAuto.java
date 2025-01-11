@@ -37,39 +37,39 @@ public final class SampleAuto extends LinearOpMode {
     // 1.455 slide
     // 1.374
     // driver assist high bucket arm, slide and wrist movement
-    public static int slideHighBucketPosition = 3000;
-    public static int armHighBucketPosition = 4400;
-    public static int armPrepPosition = 687;
-    public static int armPickupPosition = 15;
-    public static int slidePickupPosition = 578;
-    public static double wristPickupPosition = 0.466;
+    public static int slideHighBucketPosition = 3263;
+    public static int armHighBucketPosition = 4382;
+    public static int armPrepPosition = 800;
+    public static int armPickupPosition = 450;
+    public static int slidePickupPosition = 745;
+    public static double wristPickupPosition = 0.15;
     public static double wristStraightUp = 0.35;
     public static double clawOpen = 0.04;
     public static double clawClosed = 0.84;
     public static int sleepAfterClawClosed = 500;
     public static int sleepAfterClawOpen = 500;
-    public static int sleepAfterWristDeliver = 1000;
-    public static double wristDeliverPos = 0.99;
+    public static int sleepAfterWristDeliver = 1500;
+    public static double wristDeliverPos = 0.8567;
     public static double maxTransVelocity = 30.0;
     public static double accelMin = -20.0;
     public static double accelMax = 40.0;
 
-    public static double poseFarSpikeX = -9.5;
+    public static double poseFarSpikeX = -8.5;
     public static double poseFarSpikeY = 22;
     public static double poseMiddleSpikeX = -19.5;
     public static double poseMiddleSpikeY = 22;
     public static double poseCloseSpikeX = -20;
-    public static double poseCloseSpikeY = 23;
-    public static double poseDeliverX = -20; // old -24
-    public static double poseDeliverY = 9; // old 12
+    public static double poseCloseSpikeY = 24;
+    public static double poseDeliverX = -23; // old -24
+    public static double poseDeliverY = 8; // old 12
     public static double poseDeliverHeading = 45; // old 90
     public static double parkPoseX = 6;
     public static double parkPoseY = 55;
     public static int parkArm = 1900;
     public static int parkSlide = 1690;
     public static double maxRotationSpeed = 67;
-    public static boolean logAction = true;
-    public static boolean logDetails = true;
+    public static boolean logAction = false;
+    public static boolean logDetails = false;
 
     LogFile sampleAction;
     LogFile detailsLog;
@@ -103,6 +103,7 @@ public final class SampleAuto extends LinearOpMode {
         DcMotor arm = hardwareMap.dcMotor.get("arm");
         Servo claw = hardwareMap.servo.get("claw");
         Servo wrist = hardwareMap.servo.get("wrist");
+        Servo wristRotation = hardwareMap.servo.get("wristRotation");
         TouchSensor armTouchSensor = hardwareMap.get(TouchSensor.class, "armTouchSensor");
         TouchSensor slideTouchSensor = hardwareMap.get(TouchSensor.class, "slideTouchSensor");
 
@@ -167,7 +168,7 @@ public final class SampleAuto extends LinearOpMode {
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose.toPose2d(), detailsLog, logDetails);
 
-        InitializeArmAndSlide.initializeArmAndSlide(telemetry, claw, wrist, slide, arm, slideTouchSensor, armTouchSensor);
+        InitializeArmAndSlide.initializeArmAndSlide(telemetry, wristRotation, claw, wrist, slide, arm, slideTouchSensor, armTouchSensor);
 
         waitForStart();
 //                        .splineToConstantHeading(new Vector2d(-33.0, 30.00), Math.toRadians(-90.0), baseVelConstraint,baseAccelConstraint)
@@ -234,6 +235,7 @@ public final class SampleAuto extends LinearOpMode {
                 while(arm.getCurrentPosition() > (armPickupPosition+100)){
                     sleep(10);
                 }
+                sleep(100);
                 claw.setPosition(clawClosed);
                 sleep(sleepAfterClawClosed);
             }

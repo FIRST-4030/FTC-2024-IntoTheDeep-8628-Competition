@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.BuildConfig;
 
 public class InitializeArmAndSlide {
 
-    public static boolean initializeArmAndSlide(Telemetry telemetry, Servo claw, Servo wrist, DcMotor slide, DcMotor arm, TouchSensor slideTouchSensor, TouchSensor armTouchSensor) {
+    public static boolean initializeArmAndSlide(Telemetry telemetry, Servo wristRotation, Servo claw, Servo wrist, DcMotor slide, DcMotor arm, TouchSensor slideTouchSensor, TouchSensor armTouchSensor) {
         slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -17,8 +17,9 @@ public class InitializeArmAndSlide {
         slide.setPower(-0.7);
         arm.setPower(0.0);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        wrist.setPosition(0.9);
-        claw.setPosition(1.0);
+        wrist.setPosition(0.8567);
+        wristRotation.setPosition(0.5);
+        claw.setPosition(0.84);
         while (true){
             if (slideTouchSensor.isPressed()){
                 slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

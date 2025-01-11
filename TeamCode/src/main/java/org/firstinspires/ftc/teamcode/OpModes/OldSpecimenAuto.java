@@ -111,6 +111,7 @@ public final class OldSpecimenAuto extends LinearOpMode {
         DcMotor arm = hardwareMap.dcMotor.get("arm");
         Servo claw = hardwareMap.servo.get("claw");
         Servo wrist = hardwareMap.servo.get("wrist");
+        Servo wristRotation = hardwareMap.servo.get("wristRotation");
         TouchSensor armTouchSensor = hardwareMap.get(TouchSensor.class, "armTouchSensor");
         TouchSensor slideTouchSensor = hardwareMap.get(TouchSensor.class, "slideTouchSensor");
 
@@ -173,7 +174,7 @@ public final class OldSpecimenAuto extends LinearOpMode {
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose.toPose2d(), detailsLog, logDetails);
 
-        InitializeArmAndSlide.initializeArmAndSlide(telemetry, claw, wrist, slide, arm, slideTouchSensor, armTouchSensor);
+        InitializeArmAndSlide.initializeArmAndSlide(telemetry, wristRotation, claw, wrist, slide, arm, slideTouchSensor, armTouchSensor);
 
         waitForStart();
 //                        .splineToConstantHeading(new Vector2d(-33.0, 30.00), Math.toRadians(-90.0), baseVelConstraint,baseAccelConstraint)
