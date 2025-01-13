@@ -41,7 +41,7 @@ public final class SpecimenAuto extends LinearOpMode {
 
     public static double highChamberDeliverWrist = 0.6467;
     public static int highChamberDeliverArm = 4336;
-    public static int highChamberDeliverSlide = 993;
+    public static int highChamberDeliverSlide = 1100;
     public static double highChamberPrepWrist = 0.6467;
     public static int highChamberPrepArm = 4336;
     public static int highChamberPrepSlide = 324;
@@ -53,7 +53,7 @@ public final class SpecimenAuto extends LinearOpMode {
     public static int pickupSlidePrepPosition = 10;
     public static int pickupSlidePosition = 365;
     public static double pickupWristPosition = 0.41;
-    public static double pickupXPosition = 37.0;
+    public static double pickupXPosition = 39.0;
     public static double pickupYPosition = -51.0;
     public static double pickupHeading = -90;
     double clawOpen = 0.04;

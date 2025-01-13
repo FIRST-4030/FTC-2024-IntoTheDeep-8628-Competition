@@ -164,7 +164,7 @@ public final class SampleAuto extends LinearOpMode {
         AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(accelMin, accelMax);
         AccelConstraint slowAccelConstraint = new ProfileAccelConstraint(-20, 30);
 
-        Pose2dWrapper startPose = new Pose2dWrapper(0, 0, Math.toRadians(90));
+        Pose2dWrapper startPose = new Pose2dWrapper(0, -0.5, Math.toRadians(90));
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose.toPose2d(), detailsLog, logDetails);
 
