@@ -25,10 +25,7 @@ public class LocalizationTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        if (logDetails) {
-            detailsLog = new LogFile("details", "csv" );
-            detailsLog.logDetailsTitles();
-        }
+        if (logDetails) { detailsLog = new LogFile(LogFile.FileType.Details,"details", "csv" ); }
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 

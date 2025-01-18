@@ -97,15 +97,8 @@ public final class OldSpecimenAuto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        if (logSpecimenSide) {
-            specimenSideLog = new LogFile("specimen", "csv" );
-            specimenSideLog.logActionTitles();
-        }
-
-        if (logDetails) {
-            detailsLog = new LogFile("details", "csv" );
-            detailsLog.logDetailsTitles();
-        }
+        if (logSpecimenSide) { specimenSideLog = new LogFile(LogFile.FileType.Action,"specimen", "csv" ); }
+        if (logDetails) { detailsLog = new LogFile(LogFile.FileType.Details,"details", "csv" ); }
 
         DcMotor slide = hardwareMap.dcMotor.get("slide");
         DcMotor arm = hardwareMap.dcMotor.get("arm");

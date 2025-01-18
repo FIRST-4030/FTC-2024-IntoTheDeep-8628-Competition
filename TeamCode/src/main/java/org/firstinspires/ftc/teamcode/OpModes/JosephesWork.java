@@ -28,10 +28,7 @@ public final class JosephesWork extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        if (logDetails) {
-            detailsLog = new LogFile("details", "csv" );
-            detailsLog.logDetailsTitles();
-        }
+        if (logDetails) { detailsLog = new LogFile(LogFile.FileType.Details,"details", "csv" ); }
 
 //        WebcamName webcam1 = hardwareMap.get(WebcamName.class, "Webcam 1");
 ////        Position cameraPosition =

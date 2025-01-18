@@ -40,10 +40,7 @@ public final class SplineDemoWithDashboard extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        if (logDetails) {
-            detailsLog = new LogFile("details", "csv" );
-            detailsLog.logDetailsTitles();
-        }
+        if (logDetails) { detailsLog = new LogFile(LogFile.FileType.Details,"details", "csv" ); }
 
         Pose2d beginPose = new Pose2d(INITIAL_X, INITIAL_Y, Math.toRadians(-90.00));
 //        VelConstraint baseVelConstraint = new MinVelConstraint(Arrays.asList(

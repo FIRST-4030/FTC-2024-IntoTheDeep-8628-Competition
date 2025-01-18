@@ -25,10 +25,7 @@ public final class SplineTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        if (logDetails) {
-            detailsLog = new LogFile("details", "csv" );
-            detailsLog.logDetailsTitles();
-        }
+        if (logDetails) { detailsLog = new LogFile(LogFile.FileType.Details,"details", "csv" ); }
 
         Pose2d beginPose = new Pose2d(-31.00, 62.5, Math.toRadians(-90.00));
 //        VelConstraint baseVelConstraint = new MinVelConstraint(Arrays.asList(

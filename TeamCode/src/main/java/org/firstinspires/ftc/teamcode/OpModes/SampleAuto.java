@@ -89,15 +89,8 @@ public final class SampleAuto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        if (logAction) {
-            sampleAction = new LogFile("sample", "csv" );
-            sampleAction.logActionTitles();
-        }
-
-        if (logDetails) {
-            detailsLog = new LogFile("details", "csv" );
-            detailsLog.logDetailsTitles();
-        }
+        if (logAction) { sampleAction = new LogFile(LogFile.FileType.Action,"sample", "csv" ); }
+        if (logDetails) { detailsLog = new LogFile(LogFile.FileType.Details,"details", "csv" ); }
 
         DcMotor slide = hardwareMap.dcMotor.get("slide");
         DcMotor arm = hardwareMap.dcMotor.get("arm");
