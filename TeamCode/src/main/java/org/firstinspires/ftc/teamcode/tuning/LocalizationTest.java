@@ -15,8 +15,6 @@ import org.firstinspires.ftc.teamcode.LogFile;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.TankDrive;
 
-@Config
-@TeleOp(name = "LocalizationTest")
 public class LocalizationTest extends LinearOpMode {
     public static boolean logDetails = false;
 

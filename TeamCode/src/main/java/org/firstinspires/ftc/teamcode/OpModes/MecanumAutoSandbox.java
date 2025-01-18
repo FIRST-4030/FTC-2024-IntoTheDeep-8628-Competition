@@ -34,27 +34,19 @@ public class MecanumAutoSandbox extends LinearOpMode {
     int increment = 0;
     LogFile detailsLog;
     MecanumDrive drive;
+    boolean inputComplete = false;
     Options option = Options.TBD;
+    int increment = 0;
+    Action thisAction;
 
     public static boolean logDetails = true;
     public static double baseVel = 40.0;
     public static double accelMin = -20.0;
     public static double accelMax = 50.0;
-    public static double moveIncrement = 0.0001;
-    public static double baseX = 5;
-    public static double baseY = 5;
-    public static double baseHead = 0;
-    public static double step1X = -6;
-    public static double step1Y = 55;
-    public static double step1Head = 90;
-    public static double step2X = -6;
-    public static double step2Y = -35;
-    public static double step2Head = 30;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        if (logDetails) { detailsLog = new LogFile(LogFile.FileType.Details,"details", "csv"); }
 
         VelConstraint baseVelConstraint = new MinVelConstraint(Arrays.asList(
                 new TranslationalVelConstraint(baseVel),
@@ -108,7 +100,6 @@ public class MecanumAutoSandbox extends LinearOpMode {
 
             telemetry.addData("Compiled on:", BuildConfig.COMPILATION_DATE);
             telemetry.addLine();
-            telemetry.addData("Option (A-OneRotation, B-Sample5): ", option);
             telemetry.addData("Increment: ", increment);
             telemetry.addData("Press X to finalize values", inputComplete);
             telemetry.update();
@@ -124,19 +115,7 @@ public class MecanumAutoSandbox extends LinearOpMode {
 
         switch (option) {
             case OneRotation:
-//                String parY          = String.format(Locale.US, "%.2f", ThreeDeadWheelLocalizer.PARAMS.parallelDistance);
-//                String perpX         = String.format(Locale.US, "%.2f",ThreeDeadWheelLocalizer.PARAMS.perpDistance);
-//                String parallel      = "" + ThreeDeadWheelLocalizer.PARAMS.parYTicks;
-//                String perpendicular = "" + ThreeDeadWheelLocalizer.PARAMS.perpXTicks;
-//
-//                detailsLog.log("Parallel: "+parY+" ("+parallel+"), Perpendicular: "+perpX+" ("+perpendicular+")");
-
-                Action strafeAction = drive.actionBuilder(startPose.toPose2d())
-                        .strafeToLinearHeading(noMovePose.toPose2d().position,noMovePose.toPose2d().heading.toDouble())
                         .build();
-                Actions.runBlocking(strafeAction);
-
-                detailsLog.logDelta(noMovePose.toPose2d(),drive.pose);
                 break;
             case Sample5:
                 detailsLog.log("1,Start");
