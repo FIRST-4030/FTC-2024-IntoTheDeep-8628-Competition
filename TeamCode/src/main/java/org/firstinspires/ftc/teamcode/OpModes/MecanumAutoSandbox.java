@@ -1,14 +1,7 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.AccelConstraint;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.AngularVelConstraint;
-import com.acmerobotics.roadrunner.MinVelConstraint;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
-import com.acmerobotics.roadrunner.TurnConstraints;
-import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -21,8 +14,6 @@ import org.firstinspires.ftc.teamcode.Pose2dWrapper;
 import org.firstinspires.ftc.teamcode.gamepad.InputAutoMapper;
 import org.firstinspires.ftc.teamcode.gamepad.InputHandler;
 
-import java.util.Arrays;
-
 @Config
 @Autonomous
 public class MecanumAutoSandbox extends LinearOpMode {
@@ -34,27 +25,24 @@ public class MecanumAutoSandbox extends LinearOpMode {
     int increment = 0;
     LogFile detailsLog;
     MecanumDrive drive;
-    boolean inputComplete = false;
     Options option = Options.TBD;
-    int increment = 0;
-    Action thisAction;
 
     public static boolean logDetails = true;
-    public static double baseVel = 40.0;
-    public static double accelMin = -20.0;
-    public static double accelMax = 50.0;
+    public static double moveIncrement = 0.0001;
+    public static double baseX = 5;
+    public static double baseY = 5;
+    public static double baseHead = 0;
+    public static double step1X = -6;
+    public static double step1Y = 55;
+    public static double step1Head = 90;
+    public static double step2X = -6;
+    public static double step2Y = -35;
+    public static double step2Head = 30;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-
-        VelConstraint baseVelConstraint = new MinVelConstraint(Arrays.asList(
-                new TranslationalVelConstraint(baseVel),
-                new AngularVelConstraint(Math.PI / 2)
-        ));
-        AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(accelMin, accelMax);
-
-        TurnConstraints turnConstraints = new TurnConstraints(Math.toRadians(90),Math.toRadians(90),Math.toRadians(90));
+        if (logDetails) { detailsLog = new LogFile(LogFile.FileType.Details,"details", "csv"); }
 
         Pose2dWrapper startPose = new Pose2dWrapper( baseX, baseY, Math.toRadians(baseHead));
 
@@ -100,6 +88,7 @@ public class MecanumAutoSandbox extends LinearOpMode {
 
             telemetry.addData("Compiled on:", BuildConfig.COMPILATION_DATE);
             telemetry.addLine();
+            telemetry.addData("Option (A-OneRotation, B-Sample5): ", option);
             telemetry.addData("Increment: ", increment);
             telemetry.addData("Press X to finalize values", inputComplete);
             telemetry.update();
@@ -115,7 +104,12 @@ public class MecanumAutoSandbox extends LinearOpMode {
 
         switch (option) {
             case OneRotation:
+                Action strafeAction = drive.actionBuilder(startPose.toPose2d())
+                        .strafeToLinearHeading(noMovePose.toPose2d().position,noMovePose.toPose2d().heading.toDouble())
                         .build();
+                Actions.runBlocking(strafeAction);
+
+                detailsLog.logDelta(noMovePose.toPose2d(),drive.pose);
                 break;
             case Sample5:
                 detailsLog.log("1,Start");
