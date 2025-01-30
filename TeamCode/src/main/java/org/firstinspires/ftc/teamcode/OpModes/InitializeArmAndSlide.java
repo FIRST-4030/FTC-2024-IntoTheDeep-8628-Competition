@@ -17,7 +17,8 @@ public class InitializeArmAndSlide {
         slide.setPower(-0.7);
         arm.setPower(0.0);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        wrist.setPosition(0.8567);
+//        wrist.setPosition(0.8567);
+        wrist.setPosition(0.35);
         wristRotation.setPosition(0.5);
         claw.setPosition(0.84);
         while (true){

@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -73,7 +75,6 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
         int slideTargetPosition = 10;
         int slideMinPosition = 10;
         double clawTargetPosition = 0.88;
-        double wristTargetPosition = wristMax;
         double wristIncrement = 1.0/300.0;
         double wristRotationMax = 1.0;
         double wristRotationMin = 0.0;
@@ -81,6 +82,15 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
         double wristRotationSpeed = 1.0/100.0;
         double wristRotationTargetPosition = wristRotationStraight;
         double wristStraightUp = 0.35;
+        double wristTargetPosition = wristStraightUp;
+
+        int pickupSlide = 1564;
+        int pickupArm = 676;
+        double pickupWrist = 0.1233;
+
+        int scanArm = 1525;
+        int scanSlide = 1564;
+        double scanWrist = 0.05;
 
         double slowSpeed = 0.5;
         double superSlowSpeed = 0.25;
@@ -89,8 +99,15 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
 
         double turnPower;
         double lastTurnPower = 0;
+        Limelight3A limelight;
         // Declare our motors
         // Make sure your ID's match your configuration
+
+        limelight = (Limelight3A) hardwareMap.get("limelight");
+        limelight.setPollRateHz(100);
+        limelight.start();
+        limelight.pipelineSwitch(0);
+
         DcMotor frontLeftMotor = hardwareMap.dcMotor.get("leftFront");
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("leftBack");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("rightFront");
@@ -286,6 +303,62 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                 }
                 slide.setTargetPosition(slideTargetPosition);
             }
+            if (gamepad1.dpad_down){
+                armTargetPosition = scanArm;
+                arm.setTargetPosition(armTargetPosition);
+                slideTargetPosition = scanSlide;
+                slide.setTargetPosition(slideTargetPosition);
+                wristTargetPosition = scanWrist;
+                wrist.setPosition(wristTargetPosition);
+                claw.setPosition(clawOpen);
+                LLResult result = limelight.getLatestResult();
+                double tx;
+                double ty;
+                if (result != null && result.isValid()) {
+                    tx = result.getTx();
+                    ty = result.getTy();
+                    telemetry.addData("tx", tx);
+                    telemetry.addData("ty", ty);
+                     if (tx >= 3){
+                         // goes left
+                         telemetry.addLine("going left");
+                        backLeftMotor.setPower(0.3);
+                        backRightMotor.setPower(-0.3);
+                        frontLeftMotor.setPower(-0.35);
+                        frontRightMotor.setPower(0.35);
+                    } else if (tx <= -3){
+                         telemetry.addLine("going right");
+                        backLeftMotor.setPower(-0.3);
+                        backRightMotor.setPower(0.3);
+                        frontLeftMotor.setPower(0.35);
+                        frontRightMotor.setPower(-0.35);
+                    } else if (ty >= 3){
+                        backLeftMotor.setPower(-0.3);
+                        backRightMotor.setPower(-0.3);
+                        frontLeftMotor.setPower(-0.35);
+                        frontRightMotor.setPower(-0.35);
+                    } else if (ty <= -3){
+                        backLeftMotor.setPower(0.3);
+                        backRightMotor.setPower(0.3);
+                        frontLeftMotor.setPower(0.35);
+                        frontRightMotor.setPower(0.35);
+                    } else {
+                        armTargetPosition = pickupArm;
+                        arm.setTargetPosition(armTargetPosition);
+                        slideTargetPosition = pickupSlide;
+                        slide.setTargetPosition(slideTargetPosition);
+                        wristTargetPosition = pickupWrist;
+                        wrist.setPosition(wristTargetPosition);
+                        backLeftMotor.setPower(0);
+                        backRightMotor.setPower(0);
+                        frontLeftMotor.setPower(0);
+                        frontRightMotor.setPower(0);
+                        sleep(1000);
+                        claw.setPosition(clawClose);
+                    }
+                }
+
+            }
 
             if (gamepad1.dpad_right || gamepad2.dpad_right){
                 wristRotationTargetPosition += wristRotationSpeed;
@@ -420,4 +493,5 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
         AngularVelocity angularVelocity = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
         return  angularVelocity;
     }
+
 }
