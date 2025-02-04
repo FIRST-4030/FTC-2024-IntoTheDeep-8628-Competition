@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.BuildConfig;
 import org.firstinspires.ftc.teamcode.ControlHub;
 
-@Disabled
+
 @Autonomous(name="ControlHubAuto")
 public class ControlHubAuto extends LinearOpMode {
 

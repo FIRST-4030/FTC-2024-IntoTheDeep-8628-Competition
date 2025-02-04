@@ -54,7 +54,7 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
         par1.setDirection(DcMotor.Direction.REVERSE);
 
         if (networkName.equals(PRIMARY_BOT)) {
-            perp.setDirection(DcMotor.Direction.REVERSE);
+            perp.setDirection(DcMotor.Direction.FORWARD);
         } else {
             perp.setDirection(DcMotor.Direction.REVERSE);
         }

@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 public class GeneralConstants {
 
     public static final String PRIMARY_BOT = "8628-RC";
-    public static final boolean ENABLE_CALIBRATION = false;
+    public static final boolean ENABLE_CALIBRATION = true;
 
     //These constant names allow for more effective grouping when the
     //annotation, "Teleop" or "Autonomous", is used to mark an opmode
