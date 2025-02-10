@@ -54,9 +54,10 @@ public final class JosephesWork extends LinearOpMode {
 
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {
             MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose, detailsLog, logDetails);
-
-
-
+            if (!drive.controlHub.isMacAddressValid()) {
+                drive.controlHub.reportBadMacAddress(telemetry,hardwareMap);
+                telemetry.update();
+            }
 
             waitForStart();
 //          57.74, 55.91), Math.toRadians(44.44)

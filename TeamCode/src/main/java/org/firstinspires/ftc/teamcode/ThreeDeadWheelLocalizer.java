@@ -1,7 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.GeneralConstants.PRIMARY_BOT;
-import static org.firstinspires.ftc.teamcode.MecanumDrive.networkName;
+import static org.firstinspires.ftc.teamcode.GeneralConstants.SECONDARY_BOT;
+import static org.firstinspires.ftc.teamcode.MecanumDrive.macAddress;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.DualNum;
@@ -16,7 +17,6 @@ import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.messages.ThreeDeadWheelInputsMessage;
@@ -53,9 +53,9 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
         // TODO: reverse encoder directions if needed
         par1.setDirection(DcMotor.Direction.REVERSE);
 
-        if (networkName.equals(PRIMARY_BOT)) {
+        if (macAddress.equals(PRIMARY_BOT)) {
             perp.setDirection(DcMotor.Direction.FORWARD);
-        } else {
+        } else if (macAddress.equals(SECONDARY_BOT)) {
             perp.setDirection(DcMotor.Direction.REVERSE);
         }
 
@@ -113,15 +113,14 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
     }
 
     void setParams() {
-        if (networkName.equals(PRIMARY_BOT)) {
+        if (macAddress.equals(PRIMARY_BOT)) {
             PARAMS.par0YTicks = -2392.980820216595;
             PARAMS.par1YTicks = 2342.3606379694747;
             PARAMS.perpXTicks = 2021.4200053280765;
-        } else {
+        } else if (macAddress.equals(SECONDARY_BOT)) {
             PARAMS.par0YTicks = 0.0;
             PARAMS.par1YTicks = 1.0;
             PARAMS.perpXTicks = 0.0;
         }
-
     }
 }

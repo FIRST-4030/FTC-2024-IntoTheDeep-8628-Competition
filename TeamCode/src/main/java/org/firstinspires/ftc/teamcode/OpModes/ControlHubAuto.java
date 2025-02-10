@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.BuildConfig;
 import org.firstinspires.ftc.teamcode.ControlHub;
 
-
 @Autonomous(name="ControlHubAuto")
 public class ControlHubAuto extends LinearOpMode {
 
@@ -16,18 +15,18 @@ public class ControlHubAuto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        if (opModeInInit()) {
+        controlHub = new ControlHub();
 
-            controlHub = new ControlHub();
+        telemetry.addData("Compiled on:", BuildConfig.COMPILATION_DATE);
+        if (!controlHub.isMacAddressValid()) {
+            controlHub.reportBadMacAddress(telemetry,hardwareMap);
+        } else {
 
-            String compilationDate = BuildConfig.COMPILATION_DATE;
-
-            telemetry.addData("Compiled on:", compilationDate);
             telemetry.addData("MAC Address:", controlHub.getMacAddress());
             telemetry.addData("Network Name:", controlHub.getNetworkName());
             telemetry.addData("Comment:", controlHub.getComment());
-            telemetry.update();
         }
+        telemetry.update();
 
         waitForStart();
 

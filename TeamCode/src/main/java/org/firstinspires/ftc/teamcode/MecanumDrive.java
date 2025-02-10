@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.GeneralConstants.PRIMARY_BOT;
+import static org.firstinspires.ftc.teamcode.GeneralConstants.SECONDARY_BOT;
 
 import androidx.annotation.NonNull;
 
@@ -36,7 +37,6 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -99,9 +99,9 @@ public final class MecanumDrive {
 
     public static Params PARAMS = new Params();
 
-    public static String networkName;
+    public static String macAddress;
 
-    ControlHub controlHub = new ControlHub();
+    public ControlHub controlHub = new ControlHub();
 
     public MecanumKinematics kinematics = null;
 
@@ -144,9 +144,9 @@ public final class MecanumDrive {
             imu = lazyImu.get();
 
             // TODO: reverse encoders if needed
-            if (networkName.equals(PRIMARY_BOT)) {
+            if (macAddress.equals(PRIMARY_BOT)) {
                 leftBack.setDirection(DcMotor.Direction.REVERSE);
-            } else {
+            } else if (macAddress.equals(SECONDARY_BOT)) {
                 rightFront.setDirection(DcMotor.Direction.FORWARD);
             }
         }
@@ -220,13 +220,14 @@ public final class MecanumDrive {
         this.filePtr = filePtr;
         this.writeIt = writeIt;
 
-        networkName = controlHub.getNetworkName();
+         this.macAddress = controlHub.getMacAddress();
 
         // set PARAMS based upon the network you are connected to
         setParams();
 
         // initialize some classes after some PARAMS are set
         initializeOtherParameters();
+
         LynxFirmware.throwIfModulesAreOutdated(hardwareMap);
 
         for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
@@ -246,12 +247,12 @@ public final class MecanumDrive {
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // TODO: reverse motor directions if needed
-        if (networkName.equals(PRIMARY_BOT)) {
+        if (macAddress.equals(PRIMARY_BOT)) {
             leftFront.setDirection(DcMotor.Direction.FORWARD);
             leftBack.setDirection(DcMotor.Direction.FORWARD);
             rightFront.setDirection(DcMotor.Direction.FORWARD);
             rightBack.setDirection(DcMotor.Direction.REVERSE);
-        } else {
+        } else if (macAddress.equals(SECONDARY_BOT)) {
             leftFront.setDirection(DcMotor.Direction.REVERSE);
             leftBack.setDirection(DcMotor.Direction.REVERSE);
             rightFront.setDirection(DcMotor.Direction.FORWARD);
@@ -533,9 +534,10 @@ public final class MecanumDrive {
                 ));
         defaultAccelConstraint = new ProfileAccelConstraint(PARAMS.minProfileAccel, PARAMS.maxProfileAccel);
     }
+
     private void setParams() {
 
-        if (networkName.equals(PRIMARY_BOT)) {
+        if (macAddress.equals(PRIMARY_BOT)) {
 
             PARAMS.inPerTick = 0.0019507;
             PARAMS.lateralInPerTick = 0.0014813787621439458;
@@ -553,7 +555,7 @@ public final class MecanumDrive {
             PARAMS.lateralGain = 4.0;
             PARAMS.headingGain = 10.0; // shared with turn
 
-        } else {
+        } else if (macAddress.equals(SECONDARY_BOT)) {
 
             PARAMS.inPerTick = 0.0019648;
             PARAMS.lateralInPerTick = 0.0016057555324865023;
@@ -570,6 +572,25 @@ public final class MecanumDrive {
             PARAMS.axialGain = 10.0;
             PARAMS.lateralGain = 2.0;
             PARAMS.headingGain = 5.0; // shared with turn
+
+        } else {
+
+            PARAMS.inPerTick = 1;
+            PARAMS.lateralInPerTick = PARAMS.inPerTick;
+            PARAMS.trackWidthTicks = 0;
+
+            PARAMS.kS = 0;
+            PARAMS.kV = 0;
+            PARAMS.kA = 0;
+
+            PARAMS.maxWheelVel = 50;
+            PARAMS.minProfileAccel = -30;
+            PARAMS.maxProfileAccel = 50;
+
+            PARAMS.axialGain = 0;
+            PARAMS.lateralGain = 0;
+            PARAMS.headingGain = 0; // shared with turn
+
         }
 
         PARAMS.maxAngVel = Math.PI; // shared with path

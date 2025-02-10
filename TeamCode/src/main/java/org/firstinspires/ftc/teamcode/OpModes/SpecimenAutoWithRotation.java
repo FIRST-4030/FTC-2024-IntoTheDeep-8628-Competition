@@ -11,7 +11,6 @@ import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -34,7 +33,7 @@ import java.util.Arrays;
 
 @Config
 @Disabled
-@Autonomous(name = "SpecimenAutoWithRotation", group="8628")
+@Autonomous(name = "SpecimenAutoWithRotation")
 public final class SpecimenAutoWithRotation extends LinearOpMode {
 
     public static double startX = 8;
@@ -176,7 +175,9 @@ public final class SpecimenAutoWithRotation extends LinearOpMode {
         Pose2dWrapper startPose = new Pose2dWrapper(startX, startY, Math.toRadians(startHeading));
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose.toPose2d(), detailsLog, logDetails );
-
+        if (!drive.controlHub.isMacAddressValid()) {
+            drive.controlHub.reportBadMacAddress(telemetry,hardwareMap);
+        }
          InitializeArmAndSlide.initializeArmAndSlide(telemetry, wristRotation, claw, wrist, slide, arm, slideTouchSensor, armTouchSensor);
 
         waitForStart();
