@@ -319,29 +319,33 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                     ty = result.getTy();
                     telemetry.addData("tx", tx);
                     telemetry.addData("ty", ty);
-                     if (tx >= 3){
-                         // goes left
-                         telemetry.addLine("going left");
-                        backLeftMotor.setPower(0.3);
-                        backRightMotor.setPower(-0.3);
-                        frontLeftMotor.setPower(-0.35);
-                        frontRightMotor.setPower(0.35);
-                    } else if (tx <= -3){
-                         telemetry.addLine("going right");
-                        backLeftMotor.setPower(-0.3);
-                        backRightMotor.setPower(0.3);
-                        frontLeftMotor.setPower(0.35);
-                        frontRightMotor.setPower(-0.35);
-                    } else if (ty >= 3){
-                        backLeftMotor.setPower(-0.3);
-                        backRightMotor.setPower(-0.3);
-                        frontLeftMotor.setPower(-0.35);
-                        frontRightMotor.setPower(-0.35);
-                    } else if (ty <= -3){
-                        backLeftMotor.setPower(0.3);
-                        backRightMotor.setPower(0.3);
-                        frontLeftMotor.setPower(0.35);
-                        frontRightMotor.setPower(0.35);
+
+//                     if (tx >= 3){
+//                         // goes left
+//                         telemetry.addLine("going left");
+//                        backLeftMotor.setPower(0.3);
+//                        backRightMotor.setPower(-0.3);
+//                        frontLeftMotor.setPower(-0.35);
+//                        frontRightMotor.setPower(0.35);
+//                    } else if (tx <= -3){
+//                         telemetry.addLine("going right");
+//                        backLeftMotor.setPower(-0.3);
+//                        backRightMotor.setPower(0.3);
+//                        frontLeftMotor.setPower(0.35);
+//                        frontRightMotor.setPower(-0.35);
+//                    } else if (ty >= 3){
+//                        backLeftMotor.setPower(-0.3);
+//                        backRightMotor.setPower(-0.3);
+//                        frontLeftMotor.setPower(-0.35);
+//                        frontRightMotor.setPower(-0.35);
+//                    } else if (ty <= -3){
+//                        backLeftMotor.setPower(0.3);
+//                        backRightMotor.setPower(0.3);
+//                        frontLeftMotor.setPower(0.35);
+//                        frontRightMotor.setPower(0.35);
+//                    }
+                    if (Math.abs(tx) > 3 || Math.abs(ty) > 3){
+                        move (tx, -ty, frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor);
                     } else {
                         armTargetPosition = pickupArm;
                         arm.setTargetPosition(armTargetPosition);
@@ -355,6 +359,7 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                         frontRightMotor.setPower(0);
                         sleep(1000);
                         claw.setPosition(clawClose);
+                        sleep(300);
                     }
                 }
 
@@ -483,6 +488,40 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
 
             telemetry.update();
         }
+
+    }
+    public void move (double x /* degrees to the left */, double y, DcMotor frontLeftMotor, DcMotor backLeftMotor,
+                      DcMotor frontRightMotor, DcMotor backRightMotor){
+        double minPower = 0.25;
+        double powerLeft = 0;
+        if (x > 3){
+            powerLeft = Math.max (minPower, x/20);
+        } else if (x < 3) {
+            powerLeft = Math.max (-minPower, x/20);
+        }
+        double powerForward = 0;
+        if (y > 3){
+            powerForward = Math.max (minPower, y/20);
+        } else if (y < 3){
+            powerForward = Math.max (-minPower, y/20);
+        }
+        telemetry.addData("powerLeft", powerLeft);
+        telemetry.addData("powerForward", powerForward);
+
+        double frontLeftPower = powerForward-powerLeft;
+        double backLeftPower = powerForward+powerLeft;
+        double frontRightPower = powerForward+powerLeft;
+        double backRightPower = powerForward-powerLeft;
+
+        telemetry.addData("frontLeftPower", frontLeftPower);
+        telemetry.addData("backLeftPower", backLeftPower);
+        telemetry.addData("frontRightPower", frontRightPower);
+        telemetry.addData("backRightPower", backRightPower);
+
+        frontLeftMotor.setPower(frontLeftPower);
+        backLeftMotor.setPower(backLeftPower);
+        frontRightMotor.setPower(frontRightPower);
+        backRightMotor.setPower(backRightPower);
 
     }
     public YawPitchRollAngles getImuAngle(IMU imu){
