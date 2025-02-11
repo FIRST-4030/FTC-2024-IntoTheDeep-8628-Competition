@@ -47,51 +47,59 @@ public class MecanumAutoSandbox extends LinearOpMode {
         Pose2dWrapper startPose = new Pose2dWrapper( baseX, baseY, Math.toRadians(baseHead));
 
         drive = new MecanumDrive(hardwareMap, startPose.toPose2d(), detailsLog, logDetails);
-
-        InputHandler inputHandler;
-        ElapsedTime runtime = new ElapsedTime();
-        ElapsedTime inputTimer = new ElapsedTime();
-
-        runtime.reset();
-
-        inputHandler = InputAutoMapper.normal.autoMap(this);
-
-        while (!inputComplete) {
-            inputHandler.loop();
-            if (inputTimer.milliseconds() > 250) {
-
-                if (inputHandler.up("D1:X")) {
-                    inputComplete = true;
-                    inputTimer.reset();
-                }
-
-                if (inputHandler.up("D1:A")) {
-                    option = Options.OneRotation;
-                    inputTimer.reset();
-                }
-
-                if (inputHandler.up("D1:B")) {
-                    option = Options.Sample5;
-                    inputTimer.reset();
-                }
-
-                if (inputHandler.up("D1:LT")) {
-                    increment++;
-                    inputTimer.reset();
-                }
-
-                if (inputHandler.up("D1:RT")) {
-                    increment--;
-                    inputTimer.reset();
-                }
-            }
-
-            telemetry.addData("Compiled on:", BuildConfig.COMPILATION_DATE);
-            telemetry.addLine();
-            telemetry.addData("Option (A-OneRotation, B-Sample5): ", option);
-            telemetry.addData("Increment: ", increment);
-            telemetry.addData("Press X to finalize values", inputComplete);
+        if (!drive.controlHub.isMacAddressValid()) {
+            drive.controlHub.reportBadMacAddress(telemetry,hardwareMap);
             telemetry.update();
+        } else {
+
+            InputHandler inputHandler;
+            ElapsedTime runtime = new ElapsedTime();
+            ElapsedTime inputTimer = new ElapsedTime();
+
+            runtime.reset();
+
+            inputHandler = InputAutoMapper.normal.autoMap(this);
+
+            while (!inputComplete) {
+                inputHandler.loop();
+                if (inputTimer.milliseconds() > 250) {
+
+                    if (inputHandler.up("D1:X")) {
+                        inputComplete = true;
+                        inputTimer.reset();
+                    }
+
+                    if (inputHandler.up("D1:A")) {
+                        option = Options.OneRotation;
+                        inputTimer.reset();
+                    }
+
+                    if (inputHandler.up("D1:B")) {
+                        option = Options.Sample5;
+                        inputTimer.reset();
+                    }
+
+                    if (inputHandler.up("D1:LT")) {
+                        increment++;
+                        inputTimer.reset();
+                    }
+
+                    if (inputHandler.up("D1:RT")) {
+                        increment--;
+                        inputTimer.reset();
+                    }
+                }
+
+                if (!drive.controlHub.isMacAddressValid()) {
+                    drive.controlHub.reportBadMacAddress(telemetry, hardwareMap);
+                }
+                telemetry.addData("Compiled on:", BuildConfig.COMPILATION_DATE);
+                telemetry.addLine();
+                telemetry.addData("Option (A-OneRotation, B-Sample5): ", option);
+                telemetry.addData("Increment: ", increment);
+                telemetry.addData("Press X to finalize values", inputComplete);
+                telemetry.update();
+            }
         }
 
         thisAction = drive.actionBuilder(startPose.toPose2d())
@@ -113,8 +121,8 @@ public class MecanumAutoSandbox extends LinearOpMode {
                 break;
             case Sample5:
                 detailsLog.log("1,Start");
-                Pose2dWrapper step1Pose = new Pose2dWrapper(step1X, step1Y, Math.toRadians(step1Head));
-                Pose2dWrapper step2Pose = new Pose2dWrapper( step2X, step2Y, Math.toRadians(step2Head) );
+                Pose2dWrapper step1Pose = new Pose2dWrapper(step1X,step1Y,Math.toRadians(step1Head));
+                Pose2dWrapper step2Pose = new Pose2dWrapper(step2X,step2Y,Math.toRadians(step2Head));
                 thisAction = drive.actionBuilder(startPose.toPose2d())
                         .splineToLinearHeading(step1Pose.toPose2d(),step1Pose.heading)
                         .waitSeconds(2.0)

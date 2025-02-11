@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode;
 
 public class GeneralConstants {
 
-    public static final String PRIMARY_BOT = "8628-RC";
-    public static final boolean ENABLE_CALIBRATION = true;
+    public static final String PRIMARY_BOT = ControlHub.getBotAddress(0);
+    public static final String SECONDARY_BOT = ControlHub.getBotAddress(1);
+
+    public static final boolean ENABLE_CALIBRATION = false;
 
     //These constant names allow for more effective grouping when the
     //annotation, "Teleop" or "Autonomous", is used to mark an opmode
