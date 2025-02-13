@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
+import static java.util.OptionalDouble.empty;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -16,6 +18,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.BuildConfig;
+
+import java.util.Optional;
+import java.util.OptionalDouble;
 
 @Config
 @TeleOp(name = "FieldCentricMecanumTeleOp")
@@ -70,6 +75,8 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         // Put constants here
+        Optional<Double> initialAngle = Optional.empty();
+
         int armTargetPosition = 10;
         int armMinPosition = 10;
         int slideTargetPosition = 10;
@@ -304,6 +311,18 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                 slide.setTargetPosition(slideTargetPosition);
             }
             if (gamepad1.dpad_down){
+                if (!initialAngle.isPresent()){
+                    initialAngle = Optional.of(getImuAngle(imu).getYaw(AngleUnit.DEGREES));
+                }
+                double currentAngle = getImuAngle(imu).getYaw(AngleUnit.DEGREES);
+                double error = initialAngle.get()-currentAngle;
+                if (error > 180){
+                    error -= 180;
+                } else if (error < -180) {
+                    error += 180;
+                }
+                double limelightTurnPower = error/45;
+
                 armTargetPosition = scanArm;
                 arm.setTargetPosition(armTargetPosition);
                 slideTargetPosition = scanSlide;
@@ -345,7 +364,7 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
 //                        frontRightMotor.setPower(0.35);
 //                    }
                     if (Math.abs(tx) > 3 || Math.abs(ty) > 3){
-                        move (tx, -ty, frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor);
+                        move (tx, -ty, frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor, limelightTurnPower);
                     } else {
                         armTargetPosition = pickupArm;
                         arm.setTargetPosition(armTargetPosition);
@@ -363,6 +382,8 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                     }
                 }
 
+            } else {
+                initialAngle = Optional.empty();
             }
 
             if (gamepad1.dpad_right || gamepad2.dpad_right){
@@ -491,8 +512,8 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
 
     }
     public void move (double x /* degrees to the left */, double y, DcMotor frontLeftMotor, DcMotor backLeftMotor,
-                      DcMotor frontRightMotor, DcMotor backRightMotor){
-        double minPower = 0.25;
+                      DcMotor frontRightMotor, DcMotor backRightMotor, double turnPower){
+        double minPower = 0.3;
         double powerLeft = 0;
         if (x > 3){
             powerLeft = Math.max (minPower, x/20);
@@ -508,10 +529,10 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
         telemetry.addData("powerLeft", powerLeft);
         telemetry.addData("powerForward", powerForward);
 
-        double frontLeftPower = powerForward-powerLeft;
-        double backLeftPower = powerForward+powerLeft;
-        double frontRightPower = powerForward+powerLeft;
-        double backRightPower = powerForward-powerLeft;
+        double frontLeftPower = powerForward-powerLeft+turnPower;
+        double backLeftPower = powerForward+powerLeft+turnPower;
+        double frontRightPower = powerForward+powerLeft-turnPower;
+        double backRightPower = powerForward-powerLeft-turnPower;
 
         telemetry.addData("frontLeftPower", frontLeftPower);
         telemetry.addData("backLeftPower", backLeftPower);
