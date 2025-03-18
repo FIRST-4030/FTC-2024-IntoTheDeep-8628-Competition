@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
-import static java.util.OptionalDouble.empty;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -19,8 +19,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.BuildConfig;
 
+import java.sql.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.OptionalDouble;
 
 @Config
 @TeleOp(name = "FieldCentricMecanumTeleOp")
@@ -251,7 +256,8 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
             }
             if (gamepad1.back) {
                 // Bring arm, slide, and claw back to there original position
-                InitializeArmAndSlide.initializeArmAndSlide(telemetry, wristRotation, claw, wrist, slide, arm, slideTouchSensor, armTouchSensor);
+                InitializeArmAndSlide.initializeArmAndSlide(telemetry, wristRotation, claw, wrist, slide, arm,
+                        slideTouchSensor, armTouchSensor);
             }
 
             double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
@@ -334,38 +340,82 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                 double tx;
                 double ty;
                 if (result != null && result.isValid()) {
+                    List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
+                    List<List<Double>> corners = null;
+                    for (LLResultTypes.ColorResult cr : colorResults) {
+                        corners = cr.getTargetCorners();
+                    }
+                    telemetry.addData("corners", corners);
                     tx = result.getTx();
                     ty = result.getTy();
                     telemetry.addData("tx", tx);
                     telemetry.addData("ty", ty);
+                    List<Double> xCorners = new ArrayList<>();
+                    List<Double> yCorners = new ArrayList<>();
+                    if (corners != null) {
+                        for (int i = 0; i < corners.size(); i++) {
+                            xCorners.add(i, corners.get(i).get(0));
+                        }
+                        telemetry.addData("xCorners", xCorners);
+                        for (int i = 0; i < corners.size(); i++) {
+                            yCorners.add(i, corners.get(i).get(1));
+                        }
+                        telemetry.addData("yCorners", yCorners);
+                    }
+                    double[] xValues = xCorners.stream().mapToDouble(Double::doubleValue).toArray();
+                    double[] yValues = yCorners.stream().mapToDouble(Double::doubleValue).toArray();
+                    if (xValues.length != yValues.length){
+                        throw new IllegalArgumentException("array lengths not equal");
+                    }
 
-//                     if (tx >= 3){
-//                         // goes left
-//                         telemetry.addLine("going left");
-//                        backLeftMotor.setPower(0.3);
-//                        backRightMotor.setPower(-0.3);
-//                        frontLeftMotor.setPower(-0.35);
-//                        frontRightMotor.setPower(0.35);
-//                    } else if (tx <= -3){
-//                         telemetry.addLine("going right");
-//                        backLeftMotor.setPower(-0.3);
-//                        backRightMotor.setPower(0.3);
-//                        frontLeftMotor.setPower(0.35);
-//                        frontRightMotor.setPower(-0.35);
-//                    } else if (ty >= 3){
-//                        backLeftMotor.setPower(-0.3);
-//                        backRightMotor.setPower(-0.3);
-//                        frontLeftMotor.setPower(-0.35);
-//                        frontRightMotor.setPower(-0.35);
-//                    } else if (ty <= -3){
-//                        backLeftMotor.setPower(0.3);
-//                        backRightMotor.setPower(0.3);
-//                        frontLeftMotor.setPower(0.35);
-//                        frontRightMotor.setPower(0.35);
-//                    }
+                    for (int j = 0; j < xValues.length-2; j++){
+                        double leastSquaredDistance = 9999999999.0; //set to a large value
+                        int closestPoint1;
+                        int closestPoint2;
+                        double [] newPoint;
+                        for (int i = 0; i < xValues.length; i++) {
+                            for (int k = 0; k < xValues.length; k++) {
+                                if (i != k) {
+                                    double xDifference = Math.abs(xValues[k]) - Math.abs(xValues[i]);
+                                    double yDifference = Math.abs(yValues[k]) - Math.abs(yValues[i]);
+                                    double distance = (xDifference * xDifference + yDifference * yDifference);
+                                    if (distance < leastSquaredDistance) {
+                                        leastSquaredDistance = distance;
+                                        closestPoint1 = i;
+                                        closestPoint2 = k;
+                                        double xAverage = (xValues[i]+xValues[k])/2;
+                                        double yAverage = (yValues[i]+yValues[k])/2;
+                                        newPoint = new double[]{xAverage, yAverage};
+                                    }
+                                }
+                            }
+                        }
+                        double [] newXValues;
+                        for (int i = 0; i < xValues.length; i++){
+                            //TODO: remove closestPoint1, and closestPoint2, and add newPoint
+                        }
+                        //TODO set xValues to new XValues
+                    }
+                    telemetry.addData("xValues",xValues);
+                    telemetry.addData("yValues",yValues);
+                    telemetry.addData("xValues", Arrays.toString(xValues));
+                    telemetry.addData("yValues", Arrays.toString(yValues));
+
+                    telemetry.addData ("slope", new LinearRegression2(xValues,yValues).getSlope());
+                    telemetry.addData ("intercept", new LinearRegression2(xValues,yValues).getIntercept());
+                    telemetry.update();
+                    backLeftMotor.setPower(0);
+                    frontLeftMotor.setPower(0);
+                    backRightMotor.setPower(0);
+                    frontRightMotor.setPower(0);
+                    sleep(10000);
+//                    double slope = LinearRegression.slope();
+//                    double intercept = LinearRegression.intercept();
+
                     if (Math.abs(tx) > 3 || Math.abs(ty) > 3){
                         move (tx, -ty, frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor, limelightTurnPower);
                     } else {
+                        double slope = new LinearRegression(xValues,yValues).slope();
                         armTargetPosition = pickupArm;
                         arm.setTargetPosition(armTargetPosition);
                         slideTargetPosition = pickupSlide;
@@ -446,7 +496,8 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                     slideTargetPosition = SLIDE.slideHighBucketPosition;
                     slide.setTargetPosition(slideTargetPosition);
                     // Move wrist to fully open when slide and arm are fully extended
-                    if (currentArmPosition > WRIST.wristBeginsFlippingForHighBucketArm && slide.getCurrentPosition() > WRIST.wristBeginsFlippingForHighBucketSlide) {
+                    if (currentArmPosition > WRIST.wristBeginsFlippingForHighBucketArm &&
+                            slide.getCurrentPosition() > WRIST.wristBeginsFlippingForHighBucketSlide) {
                         wristTargetPosition = WRIST.wristHighBucketDeliverPosition;
                         wrist.setPosition(wristTargetPosition);
                     }
