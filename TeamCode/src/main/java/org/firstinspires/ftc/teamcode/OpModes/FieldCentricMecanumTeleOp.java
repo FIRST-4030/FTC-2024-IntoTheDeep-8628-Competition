@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
 
+import static java.lang.Math.atan;
+import static java.lang.Math.atan2;
+import static java.lang.Math.tan;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -368,11 +372,11 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                         throw new IllegalArgumentException("array lengths not equal");
                     }
 
-                    for (int j = 0; j < xValues.length-2; j++){
+                    for (int j = xValues.length; j > 2; j--){
                         double leastSquaredDistance = 9999999999.0; //set to a large value
-                        int closestPoint1;
-                        int closestPoint2;
-                        double [] newPoint;
+                        int closestPoint1 = -1;
+                        int closestPoint2 = -1;
+                        double [] newPoint = null;
                         for (int i = 0; i < xValues.length; i++) {
                             for (int k = 0; k < xValues.length; k++) {
                                 if (i != k) {
@@ -390,38 +394,66 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                                 }
                             }
                         }
-                        double [] newXValues;
-                        for (int i = 0; i < xValues.length; i++){
-                            //TODO: remove closestPoint1, and closestPoint2, and add newPoint
+                        ArrayList<Double> newXvalues = new ArrayList<>();
+                        if (newPoint != null) {
+                            newXvalues.add(0, newPoint[0]);
+                            for (int i = 0; i < xValues.length; i++) {
+                                if (i != closestPoint1 && i != closestPoint2) {
+                                    newXvalues.add(newXvalues.size(), xValues[i]);
+                                }
+                            }
+                            xValues = newXvalues.stream().mapToDouble(Double::doubleValue).toArray();
                         }
-                        //TODO set xValues to new XValues
+                        ArrayList<Double> newYvalues = new ArrayList<>();
+                        if (newPoint != null) {
+                            newYvalues.add(0, newPoint[1]);
+                            for (int i = 0; i < yValues.length; i++) {
+                                if (i != closestPoint1 && i != closestPoint2) {
+                                    newYvalues.add(newYvalues.size(), yValues[i]);
+                                }
+                            }
+                            yValues = newYvalues.stream().mapToDouble(Double::doubleValue).toArray();
+                        }
                     }
+                    double slope = (yValues[0]-yValues[1])/(xValues[0]-xValues[1]);
+                    double theta = atan2((yValues[0]-yValues[1]),(xValues[0]-xValues[1]));
+                    /* theta;wrist
+                    pi/2; 0.5
+                    0.8; 0.38
+                    0; 0.22
+                    2.42; 0.66
+                    -0.12; 0.76
+                    0.06; 0.25
+                     */
+
                     telemetry.addData("xValues",xValues);
                     telemetry.addData("yValues",yValues);
                     telemetry.addData("xValues", Arrays.toString(xValues));
                     telemetry.addData("yValues", Arrays.toString(yValues));
-
-                    telemetry.addData ("slope", new LinearRegression2(xValues,yValues).getSlope());
+                    telemetry.addData("theta",theta);
+                    telemetry.addData("slope", slope);
+                    telemetry.addData ("regressionSlope", new LinearRegression2(xValues,yValues).getSlope());
                     telemetry.addData ("intercept", new LinearRegression2(xValues,yValues).getIntercept());
-                    telemetry.update();
-                    backLeftMotor.setPower(0);
-                    frontLeftMotor.setPower(0);
-                    backRightMotor.setPower(0);
-                    frontRightMotor.setPower(0);
-                    sleep(10000);
 //                    double slope = LinearRegression.slope();
 //                    double intercept = LinearRegression.intercept();
 
                     if (Math.abs(tx) > 3 || Math.abs(ty) > 3){
                         move (tx, -ty, frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor, limelightTurnPower);
                     } else {
-                        double slope = new LinearRegression(xValues,yValues).slope();
                         armTargetPosition = pickupArm;
                         arm.setTargetPosition(armTargetPosition);
                         slideTargetPosition = pickupSlide;
                         slide.setTargetPosition(slideTargetPosition);
                         wristTargetPosition = pickupWrist;
                         wrist.setPosition(wristTargetPosition);
+                        double wristRotationPosition = (0.44/2.42)*theta+0.22;
+                        while (wristRotationPosition > 0.75){
+                            wristRotationPosition -= 0.5;
+                        }
+                        while (wristRotationPosition < 0.25){
+                            wristRotationPosition += 0.5;
+                        }
+                        wristRotation.setPosition(wristRotationPosition);
                         backLeftMotor.setPower(0);
                         backRightMotor.setPower(0);
                         frontLeftMotor.setPower(0);
