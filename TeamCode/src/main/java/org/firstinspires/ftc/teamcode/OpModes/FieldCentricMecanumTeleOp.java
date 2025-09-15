@@ -3,13 +3,20 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import static java.lang.Math.atan;
 import static java.lang.Math.atan2;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
 import static java.lang.Math.tan;
+import static java.lang.Math.toRadians;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.ftc.Encoder;
+import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
+import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -74,7 +81,7 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
     public static double wristMax = 0.8567;
     public static double wristMin = 0.05;
 
-    public static double wristRotationStraight = 0.5;// TODO change this to the correct value
+    public static double wristRotationStraight = 0.5;
 
     public static Arm ARM = new Arm();
     public static Slide SLIDE = new Slide();
@@ -115,6 +122,7 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
 
         double turnPower;
         double lastTurnPower = 0;
+        final Encoder par0, par1, perp;
         Limelight3A limelight;
         // Declare our motors
         // Make sure your ID's match your configuration
@@ -138,6 +146,9 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
 
         TouchSensor armTouchSensor = hardwareMap.get(TouchSensor.class, "armTouchSensor");
         TouchSensor slideTouchSensor = hardwareMap.get(TouchSensor.class, "slideTouchSensor");
+        par0 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "leftBack")));
+        par1 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "rightFront")));
+        perp = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "perpEncoder")));
 
         // Reverse the right side motors. This may be wrong for your setup.
         // If your robot moves backwards when commanded to go forwards,
@@ -373,7 +384,7 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                     }
 
                     for (int j = xValues.length; j > 2; j--){
-                        double leastSquaredDistance = 9999999999.0; //set to a large value
+                        double leastSquaredDistance = 9999999999.0; //set to a large value that a real number would not be larger
                         int closestPoint1 = -1;
                         int closestPoint2 = -1;
                         double [] newPoint = null;
@@ -436,9 +447,28 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                     telemetry.addData ("intercept", new LinearRegression2(xValues,yValues).getIntercept());
 //                    double slope = LinearRegression.slope();
 //                    double intercept = LinearRegression.intercept();
-
-                    if (Math.abs(tx) > 3 || Math.abs(ty) > 3){
+                    double vel0 = par0.getPositionAndVelocity().velocity;
+                    double vel1 = par1.getPositionAndVelocity().velocity;
+                    double vel2 = perp.getPositionAndVelocity().velocity;
+                    double parallelVelocity = (vel0+vel1)/2;
+                    double velocity = Math.sqrt(parallelVelocity*parallelVelocity+vel2*vel2);
+                    telemetry.addData("velocity", velocity);
+                    if ((Math.abs(tx) > 3 || Math.abs(ty) > 3) || velocity > 500){
                         move (tx, -ty, frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor, limelightTurnPower);
+                        backLeftMotor.setPower(0);
+                        frontLeftMotor.setPower(0);
+                        backRightMotor.setPower(0);
+                        frontRightMotor.setPower(0);
+
+                        //18.5 ty /5.5 in; 18 ty/5.25 in; 13.75 ty/4 in; 9.43 ty/3+1/16 in; 5.21 ty/2.25 in;
+                        // ty/in = 3.125
+                        // limelight height = 15.25
+                                                   double calculatedDistanceWithTrig = 15.25*(Math.tan(Math.toRadians(ty)));
+                        double calculatedDistanceWithData = ty/3.125;
+                        telemetry.addData("calculatedDistanceWithData",calculatedDistanceWithData);
+                        telemetry.addData("calculatedDistanceWithTrig",calculatedDistanceWithTrig);
+                        telemetry.update();
+                        sleep(5000);
                     } else {
                         armTargetPosition = pickupArm;
                         arm.setTargetPosition(armTargetPosition);
@@ -453,7 +483,8 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
                         while (wristRotationPosition < 0.25){
                             wristRotationPosition += 0.5;
                         }
-                        wristRotation.setPosition(wristRotationPosition);
+                        wristRotationTargetPosition = wristRotationPosition;
+                        wristRotation.setPosition(wristRotationTargetPosition);
                         backLeftMotor.setPower(0);
                         backRightMotor.setPower(0);
                         frontLeftMotor.setPower(0);
@@ -600,14 +631,14 @@ public class FieldCentricMecanumTeleOp extends LinearOpMode {
         double powerLeft = 0;
         if (x > 3){
             powerLeft = Math.max (minPower, x/20);
-        } else if (x < 3) {
-            powerLeft = Math.max (-minPower, x/20);
+        } else if (x < -3) {
+            powerLeft = Math.min (-minPower, x/20);
         }
         double powerForward = 0;
         if (y > 3){
             powerForward = Math.max (minPower, y/20);
-        } else if (y < 3){
-            powerForward = Math.max (-minPower, y/20);
+        } else if (y < -3){
+            powerForward = Math.min (-minPower, y/20);
         }
         telemetry.addData("powerLeft", powerLeft);
         telemetry.addData("powerForward", powerForward);
